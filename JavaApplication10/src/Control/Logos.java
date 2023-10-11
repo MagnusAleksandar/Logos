@@ -1,8 +1,8 @@
-package Modelo;
+package Control;
 
 import java.util.ArrayList;
-import java.util.Collections;
-import java.util.HashSet;
+//import java.util.Collections;
+//import java.util.HashSet;
 import java.util.Set;
 import java.util.TreeSet;
 
@@ -62,6 +62,17 @@ public class Logos {
         return s;
     }
 
+    public static String negado(String pos) {
+        String neg = "";
+        for (int i = 0; i < pos.length(); i++) {
+            if (pos.charAt(i) == '1')
+                neg = neg.concat(String.valueOf('0'));
+            else
+                neg = neg.concat(String.valueOf('1'));
+        }
+        return neg;
+    }
+
     public static void valAddr(String op) {
         String val = "";
         int pow = (int) Math.pow(2, powCalc(op)), powh = pow / 2, pos = 0;
@@ -108,8 +119,9 @@ public class Logos {
     }
 
     public static void parenth() {
-        String va1, va2, test, res;
+        String va1, va2, test, res, nres;
         char ca, cb, cc, r;
+        boolean neh = false;
         for (int i = 0; i < opers.size(); i++) {
             res = "";
             va1 = "";
@@ -135,6 +147,13 @@ public class Logos {
             } else if (test.length() < 1) {
                 opers.remove(test);
                 i--;
+            } else if (test == String.valueOf('-'))
+                neh = true;
+            if (neh) {
+                nres = negado(res);
+                vls.remove(i);
+                vls.add(nres);
+                neh = false;
             }
         }
         System.out.println(vls);
