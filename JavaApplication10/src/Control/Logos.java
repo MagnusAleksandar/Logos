@@ -1,4 +1,4 @@
-package Control;
+package Modelo;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -173,4 +173,5 @@ public class Logos {
             vr.add(vo);
         }
     }
+
 }
