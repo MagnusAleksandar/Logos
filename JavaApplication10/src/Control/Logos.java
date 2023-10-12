@@ -46,14 +46,15 @@ public class Logos {
             f = f.concat(String.valueOf(uh.charAt(cont)));
             opers.add(f);
         }
-        System.out.println(opers);
+        // System.out.println(opers);
     }
 
     public static int powCalc(String op) {
         int s;
 
         for (int i = 0; i < op.length(); i++) {
-            if (op.charAt(i) != '(' && op.charAt(i) != ')' && op.charAt(i) != '+' && op.charAt(i) != '*') {
+            if (op.charAt(i) != '(' && op.charAt(i) != ')' && op.charAt(i) != '+' && op.charAt(i) != '*'
+                    && op.charAt(i) != '-') {
                 uniqueChars.add(op.charAt(i));
             }
         }
@@ -93,7 +94,6 @@ public class Logos {
                 }
             v.add(val);
         }
-        System.out.println(v);
     }
 
     public static char plusTimes(char o, char n1, char n2) {
@@ -142,21 +142,19 @@ public class Logos {
                         r = plusTimes(test.charAt(1), va1.charAt(c), va2.charAt(c));
                         res = res.concat(String.valueOf(r));
                     }
-                    vls.add(res);
                 }
+                if (neh) {
+                    nres = negado(res);
+                    vls.add(nres);
+                    neh = false;
+                } else
+                    vls.add(res);
             } else if (test.length() < 1) {
                 opers.remove(test);
                 i--;
-            } else if (test == String.valueOf('-'))
+            } else if (test.equals("-"))
                 neh = true;
-            if (neh) {
-                nres = negado(res);
-                vls.remove(i);
-                vls.add(nres);
-                neh = false;
-            }
         }
-        System.out.println(vls);
         // System.out.println(opers.size());
     }
 
@@ -180,7 +178,7 @@ public class Logos {
         char c = ' ';
         ArrayList<Character> caux = new ArrayList<>(uniqueChars);
         ch = caux;
-        System.out.println(ch);
+        // System.out.println(ch);
 
         for (int i = 0; i < v.size(); i++) {
             a = v.get(i);
@@ -193,4 +191,31 @@ public class Logos {
         }
     }
 
+    public static void gather(String op) {
+        ArrayList<String> t = new ArrayList<>();
+        boolean neg = false;
+        String n = "";
+        arrayMaker(op);
+        valAddr(op);
+        assignVar();
+        parenth();
+        for (int i = 0; i < ch.size(); i++) {
+            System.out.println(ch.get(i) + " " + v.get(i));
+        }
+        for (int j = 0; j < opers.size(); j++) {
+            if (neg) {
+                n = n.concat("-");
+                n = n.concat(opers.get(j));
+                t.add(n);
+                neg = false;
+            } else if (opers.get(j).length() > 2) {
+                t.add(opers.get(j));
+            } else if (opers.get(j).equals("-"))
+                neg = true;
+
+        }
+        for (int k = 0; k < vls.size(); k++) {
+            System.out.println(t.get(k) + " " + vls.get(k));
+        }
+    }
 }
