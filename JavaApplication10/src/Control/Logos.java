@@ -245,9 +245,8 @@ public class Logos {
         boolean neg = false;
         String n = "";
         arrayMaker(op);
-        System.out.println(opers.get(0).length());
-        // valAddr(op);
-        // assignVar();
+        valAddr(op);
+        assignVar();
         // parenth();
         // for (int i = 0; i < ch.size(); i++) {
         // System.out.println(ch.get(i) + " " + v.get(i));
