@@ -262,19 +262,19 @@ public class Logos {
         for (int i = 0; i < vr.size(); i++) {
             System.out.println(vr.get(i).getNom() + "\t" + vr.get(i).getVals());
         }
-        // for (int j = 0; j < opers.size(); j++) {
-        // if (neg) {
-        // n = n.concat("-");
-        // n = n.concat(opers.get(j));
-        // t.add(n);
-        // neg = false;
-        // } else if (opers.get(j).length() > 2) {
-        // t.add(opers.get(j));
-        // } else if (opers.get(j).equals("-"))
-        // neg = true;
-        // }
-        // for (int k = 0; k < vls.size(); k++) {
-        // System.out.println(t.get(k) + " " + vls.get(k));
-        // }
+        for (int j = 0; j < opers.size(); j++) {
+            if (neg) {
+                n = n.concat("-");
+                n = n.concat(opers.get(j));
+                t.add(n);
+                neg = false;
+            } else if (opers.get(j).length() > 2) {
+                t.add(opers.get(j));
+            } else if (opers.get(j).equals("-"))
+                neg = true;
+        }
+        for (int k = 0; k < vls.size(); k++) {
+            System.out.println(t.get(k) + "\t" + vls.get(k));
+        }
     }
 }
