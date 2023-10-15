@@ -221,6 +221,7 @@ public class Logos {
     public static void assignVar() {
         String a = "";
         char c = ' ';
+        int cont = 0;
         ArrayList<Character> caux = new ArrayList<>(uniqueChars);
         ch = caux;
         // System.out.println(ch);
@@ -230,13 +231,21 @@ public class Logos {
             c = ch.get(i);
 
             Variable vo = new Variable();
-            vo.setNom(c);
-            if (c != 'γ')
+            if (c != 'ÿ') {
+                vo.setNom(c);
                 vo.setVals(a);
-            else {
-                a = negado(a);
+            } else {
+                vo.setNom('g');
                 vo.setVals(a);
             }
+            vr.add(vo);
+        }
+        char ch = vr.get(vr.size() - 1).getNom();
+        if (ch == 'g') {
+            Variable vo = new Variable();
+            vo.setNom('ÿ');
+            a = negado(vr.get(vr.size() - 1).getVals());
+            vo.setVals(a);
             vr.add(vo);
         }
     }
@@ -249,22 +258,23 @@ public class Logos {
         valAddr(op);
         assignVar();
         parenth();
-        for (int i = 0; i < ch.size(); i++) {
-            System.out.println(ch.get(i) + " " + v.get(i));
+        System.out.println(vr.get(0).getVals().length());
+        for (int i = 0; i < vr.size(); i++) {
+            System.out.println(vr.get(i).getNom() + "\t" + vr.get(i).getVals());
         }
-        for (int j = 0; j < opers.size(); j++) {
-            if (neg) {
-                n = n.concat("-");
-                n = n.concat(opers.get(j));
-                t.add(n);
-                neg = false;
-            } else if (opers.get(j).length() > 2) {
-                t.add(opers.get(j));
-            } else if (opers.get(j).equals("-"))
-                neg = true;
-        }
-        for (int k = 0; k < vls.size(); k++) {
-            System.out.println(t.get(k) + " " + vls.get(k));
-        }
+        // for (int j = 0; j < opers.size(); j++) {
+        // if (neg) {
+        // n = n.concat("-");
+        // n = n.concat(opers.get(j));
+        // t.add(n);
+        // neg = false;
+        // } else if (opers.get(j).length() > 2) {
+        // t.add(opers.get(j));
+        // } else if (opers.get(j).equals("-"))
+        // neg = true;
+        // }
+        // for (int k = 0; k < vls.size(); k++) {
+        // System.out.println(t.get(k) + " " + vls.get(k));
+        // }
     }
 }
