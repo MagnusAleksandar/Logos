@@ -67,7 +67,6 @@ public class Logos {
             f = f.concat(String.valueOf(uh.charAt(cont)));
             opers.add(f);
         }
-
         for (int k = 0; k < opers.size(); k++) {
             if (opers.get(k).length() < 1 || opers.get(k).length() == 1 && containsAny(opers.get(k), frb)) {
                 opers.remove(opers.get(k));
@@ -96,14 +95,16 @@ public class Logos {
 
     public static int powCalc(String op) {
         int s;
-
+        char ch;
         for (int i = 0; i < op.length(); i++) {
-            if (!op.contains(frb)) {
-                uniqueChars.add(op.charAt(i));
-            }
+            ch = op.charAt(i);
+            if (!containsAny(String.valueOf(ch), frb) && ch != '-')
+                uniqueChars.add(ch);
+
         }
         // uniqueChars.toArray();
         s = uniqueChars.size();
+        System.out.println(s);
         return s;
     }
 
@@ -120,8 +121,8 @@ public class Logos {
 
     public static void valAddr(String op) {
         String val = "";
-        int pow = (int) Math.pow(2, powCalc(op)), powh = pow / 2, pos = 0;
-        for (int c = 0; c < powCalc(op); c++) {
+        int r = powCalc(op), pow = (int) Math.pow(2, r), powh = pow / 2, pos = 0;
+        for (int c = 0; c < r; c++) {
             val = "";
             for (int i = 0; i < powh; i++) {
                 pos = i;
@@ -247,24 +248,23 @@ public class Logos {
         arrayMaker(op);
         valAddr(op);
         assignVar();
-        // parenth();
-        // for (int i = 0; i < ch.size(); i++) {
-        // System.out.println(ch.get(i) + " " + v.get(i));
-        // }
-        // for (int j = 0; j < opers.size(); j++) {
-        // if (neg) {
-        // n = n.concat("-");
-        // n = n.concat(opers.get(j));
-        // t.add(n);
-        // neg = false;
-        // } else if (opers.get(j).length() > 2) {
-        // t.add(opers.get(j));
-        // } else if (opers.get(j).equals("-"))
-        // neg = true;
-
-        // }
-        // for (int k = 0; k < vls.size(); k++) {
-        // System.out.println(t.get(k) + " " + vls.get(k));
-        // }
+        parenth();
+        for (int i = 0; i < ch.size(); i++) {
+            System.out.println(ch.get(i) + " " + v.get(i));
+        }
+        for (int j = 0; j < opers.size(); j++) {
+            if (neg) {
+                n = n.concat("-");
+                n = n.concat(opers.get(j));
+                t.add(n);
+                neg = false;
+            } else if (opers.get(j).length() > 2) {
+                t.add(opers.get(j));
+            } else if (opers.get(j).equals("-"))
+                neg = true;
+        }
+        for (int k = 0; k < vls.size(); k++) {
+            System.out.println(t.get(k) + " " + vls.get(k));
+        }
     }
 }
