@@ -38,7 +38,7 @@ public class Logos {
         for (int i = 0; i < op.length(); i++) {
             if (op.charAt(i) == '-')
                 bneg = true;
-            if (op.charAt(i) == '[' && bneg)
+            if ((op.charAt(i) == '(' || op.charAt(i) == '[') && bneg)
                 bneg = false;
             if (op.charAt(i) != ']') {
                 uhb = uhb.concat(String.valueOf(op.charAt(i)));
@@ -53,7 +53,8 @@ public class Logos {
                     t.add(uh);
                     uh = "";
                 }
-            }
+            } else
+                t.add("-");
         }
         if (uh != "")
             t.add(uh);
@@ -152,22 +153,26 @@ public class Logos {
 
     public static void opAddr() {
         String val, nom;
-        for (int i = 0; i < vls.size(); i++) {
-            nom = opers.get(i);
-            val = vls.get(i);
-            Operacion o = new Operacion();
-            o.setNom(nom);
-            o.setVals(val);
-            ops.add(o);
+        boolean cont = false;
+        for (int i = 0; i < opers.size(); i++) {
+            if (!opers.get(i).equals("-")) {
+                if (cont) {
+                    nom = opers.get(i);
+                    val = vls.get(i - 1);
+                } else {
+                    nom = opers.get(i);
+                    val = vls.get(i);
+                }
+                if (nom != "" && val != "") {
+                    Operacion o = new Operacion();
+                    o.setNom(nom);
+                    o.setVals(val);
+                    ops.add(o);
+                }
+            } else
+                cont = true;
         }
         char ch = vr.get(vr.size() - 1).getNom();
-        if (ch == 'g') {
-            Operacion o = new Operacion();
-            o.setNom(String.valueOf('ÿ'));
-            val = negado(vr.get(vr.size() - 1).getVals());
-            o.setVals(val);
-            ops.add(o);
-        }
 
     }
 
@@ -210,8 +215,13 @@ public class Logos {
             } else if (test.length() > 1) {
                 for (int j = 0; j < ops.size(); j++) {
                     if (test.length() > 10) {
-                        ca = ca.concat(test.substring(1, 4));
-                        cc = cc.concat(test.substring(7, 10));
+                        if (test.charAt(0) != '-') {
+                            ca = ca.concat(test.substring(1, 4));
+                            cc = cc.concat(test.substring(7, 10));
+                        } else {
+                            ca = ca.concat(test.substring(2, 5));
+                            cc = cc.concat(test.substring(8, 11));
+                        }
                     } else {
                         ca = "";
                         cc = "";
@@ -246,9 +256,17 @@ public class Logos {
                         break;
                 }
                 if (va1 != "" || va2 != "") {
-                    for (int c = 0; c < va1.length(); c++) {
-                        r = plusTimes(test.charAt(5), va1.charAt(c), va2.charAt(c));
-                        res = res.concat(String.valueOf(r));
+                    if (test.charAt(0) != '-') {
+                        for (int c = 0; c < va1.length(); c++) {
+                            r = plusTimes(test.charAt(5), va1.charAt(c), va2.charAt(c));
+                            res = res.concat(String.valueOf(r));
+                        }
+                    } else {
+                        for (int c = 0; c < va1.length(); c++) {
+                            r = plusTimes(test.charAt(6), va1.charAt(c), va2.charAt(c));
+                            res = res.concat(String.valueOf(r));
+                            neh = true;
+                        }
                     }
                 }
                 if (neh) {
@@ -306,7 +324,10 @@ public class Logos {
             } else if (test.length() < 1) {
                 opers.remove(test);
                 i--;
+            } else if (test.equals("ÿ")) {
+                vls.add(negado(vr.get(vr.size() - 1).getVals()));
             }
+
         }
     }
 
@@ -383,6 +404,7 @@ public class Logos {
         parenth();
         bigParenth();
         bigParAddr();
+        System.out.println(opers);
 
         for (int i = 0; i < vr.size(); i++)
             System.out.println(vr.get(i).getNom() + "\t" + vr.get(i).getVals());
@@ -390,7 +412,15 @@ public class Logos {
         for (int i = 0; i < ops.size(); i++)
             System.out.println(ops.get(i).getNom() + "\t" + ops.get(i).getVals());
 
-        for (int i = 0; i < bigRes.size(); i++)
-            System.out.println(bigRes.get(i).getNom() + "\t" + bigRes.get(i).getVals());
+        for (int i = 0; i < bigRes.size(); i++) {
+            if (bigPar.get(i).equals("-"))
+                neg = true;
+            if (!neg)
+                System.out.println(bigRes.get(i).getNom() + "\t" + bigRes.get(i).getVals());
+            else {
+                System.out.println("-" + bigRes.get(i).getNom() + "\t" + bigRes.get(i).getVals());
+                neg = false;
+            }
+        }
     }
 }
