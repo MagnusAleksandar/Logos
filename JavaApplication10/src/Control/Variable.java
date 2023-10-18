@@ -4,11 +4,6 @@ public class Variable {
     private String vals;
     private char nom;
 
-    public Variable(String vals, char nom) {
-        this.vals = vals;
-        this.nom = nom;
-    }
-
     public Variable() {
 
     }

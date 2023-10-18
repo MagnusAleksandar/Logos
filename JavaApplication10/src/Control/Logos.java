@@ -15,8 +15,10 @@ public class Logos {
     private static ArrayList<String> vls = new ArrayList();
     private static ArrayList<Character> ch = new ArrayList<>(uniqueChars);
     private static ArrayList<Variable> vr = new ArrayList();
+    private static ArrayList<Operacion> ops = new ArrayList();
+    private static ArrayList<String> os = new ArrayList();
+    private static ArrayList<Operacion> bigRes = new ArrayList<>();
 
-    // private static Variable vo = new Variable("", ' '); 'γ'
     public static boolean containsAny(String str) {
         String frb = "+*()[]";
         for (char c : frb.toCharArray()) {
@@ -89,15 +91,15 @@ public class Logos {
                 if (uhb.charAt(c - 1) != '[')
                     f = f.concat(String.valueOf(uhb.charAt(c - 1)));
                 else {
-                    bigPar.add(f);
+                    if (f.length() > 1 || !f.equals("*") && !f.equals("+"))
+                        bigPar.add(f);
                     f = "";
                 }
                 cont = c;
             }
             f = f.concat(String.valueOf(uhb.charAt(cont)));
-
+            bigPar.add(f);
         }
-        System.out.println(opers + "\n" + bigPar);
     }
 
     public static int powCalc(String op) {
@@ -148,6 +150,27 @@ public class Logos {
         }
     }
 
+    public static void opAddr() {
+        String val, nom;
+        for (int i = 0; i < vls.size(); i++) {
+            nom = opers.get(i);
+            val = vls.get(i);
+            Operacion o = new Operacion();
+            o.setNom(nom);
+            o.setVals(val);
+            ops.add(o);
+        }
+        char ch = vr.get(vr.size() - 1).getNom();
+        if (ch == 'g') {
+            Operacion o = new Operacion();
+            o.setNom(String.valueOf('ÿ'));
+            val = negado(vr.get(vr.size() - 1).getVals());
+            o.setVals(val);
+            ops.add(o);
+        }
+
+    }
+
     public static char plusTimes(char o, char n1, char n2) {
         char ent = ' ';
         switch (o) {
@@ -168,6 +191,80 @@ public class Logos {
                 break;
         }
         return ent;
+    }
+
+    public static void bigParenth() {
+        String va1, va2, cb = "", ca = "", cc = "", test, res, nres;
+        char r = ' ';
+        boolean neh = false;
+        int fin = 0, osint = 0;
+        opAddr();
+        for (int i = 0; i < bigPar.size(); i++) {
+            res = "";
+            va1 = "";
+            va2 = "";
+            test = bigPar.get(i);
+            if (test.equals("-")) {
+                neh = true;
+
+            } else if (test.length() > 1) {
+                for (int j = 0; j < ops.size(); j++) {
+                    if (test.length() > 10) {
+                        ca = ca.concat(test.substring(1, 4));
+                        cc = cc.concat(test.substring(7, 10));
+                    } else {
+                        ca = "";
+                        cc = "";
+                        for (int k = 1; k < test.length(); k++) {
+                            r = test.charAt(k);
+                            if (r != ')')
+                                ca = ca.concat(String.valueOf(test.charAt(k)));
+                            else {
+                                fin = k;
+                                break;
+                            }
+                        }
+                        for (int k = fin + 3; k < test.length(); k++) {
+                            r = test.charAt(k);
+                            if (r != ')')
+                                cc = cc.concat(String.valueOf(test.charAt(k)));
+                            else
+                                break;
+
+                        }
+                    }
+                    cb = ops.get(j).getNom();
+                    if (ca.equals(cb)) {
+                        va1 = vr.get(j).getVals();
+                        cc = "";
+                    }
+                    if (cc.equals(cb)) {
+                        va2 = vr.get(j).getVals();
+                        ca = "";
+                    }
+                    if (va1 != "" && va2 != "")
+                        break;
+                }
+                if (va1 != "" || va2 != "") {
+                    for (int c = 0; c < va1.length(); c++) {
+                        r = plusTimes(test.charAt(5), va1.charAt(c), va2.charAt(c));
+                        res = res.concat(String.valueOf(r));
+                    }
+                }
+                if (neh) {
+                    nres = negado(res);
+                    os.add(nres);
+                    neh = false;
+                } else
+                    os.add(res);
+
+            } else if (test.length() < 1) {
+                bigPar.remove(test);
+                i--;
+            }
+            osint++;
+
+        }
     }
 
     public static void parenth() {
@@ -211,7 +308,30 @@ public class Logos {
                 i--;
             }
         }
-        // System.out.println(opers.size());
+    }
+
+    public static void bigParAddr() {
+        String nom = "", val = "", t;
+        boolean cont = false;
+        for (int a = 0; a < bigPar.size(); a++) {
+            t = bigPar.get(a);
+            if (!bigPar.get(a).equals("-")) {
+                if (cont) {
+                    nom = bigPar.get(a);
+                    val = os.get(a - 1);
+                } else if (!cont) {
+                    nom = bigPar.get(a);
+                    val = os.get(a);
+                }
+                if (nom != "" && val != "") {
+                    Operacion bigP = new Operacion();
+                    bigP.setNom(nom);
+                    bigP.setVals(val);
+                    bigRes.add(bigP);
+                }
+            } else
+                cont = true;
+        }
     }
 
     public static void finalOp() {
@@ -230,8 +350,8 @@ public class Logos {
     }
 
     public static void assignVar() {
-        String a = "";
-        char c = ' ';
+        String a;
+        char c;
         // int cont = 0;
         ArrayList<Character> caux = new ArrayList<>(uniqueChars);
         ch = caux;
@@ -251,14 +371,6 @@ public class Logos {
             }
             vr.add(vo);
         }
-        char ch = vr.get(vr.size() - 1).getNom();
-        if (ch == 'g') {
-            Variable vo = new Variable();
-            vo.setNom('ÿ');
-            a = negado(vr.get(vr.size() - 1).getVals());
-            vo.setVals(a);
-            vr.add(vo);
-        }
     }
 
     public static void gather(String op) {
@@ -269,23 +381,16 @@ public class Logos {
         valAddr(op);
         assignVar();
         parenth();
+        bigParenth();
+        bigParAddr();
 
-        for (int i = 0; i < vr.size(); i++) {
+        for (int i = 0; i < vr.size(); i++)
             System.out.println(vr.get(i).getNom() + "\t" + vr.get(i).getVals());
-        }
-        for (int j = 0; j < opers.size(); j++) {
-            if (neg) {
-                n = n.concat("-");
-                n = n.concat(opers.get(j));
-                t.add(n);
-                neg = false;
-            } else if (opers.get(j).length() > 2) {
-                t.add(opers.get(j));
-            } else if (opers.get(j).equals("-"))
-                neg = true;
-        }
-        for (int k = 0; k < vls.size(); k++) {
-            System.out.println(t.get(k) + "\t" + vls.get(k));
-        }
+
+        for (int i = 0; i < ops.size(); i++)
+            System.out.println(ops.get(i).getNom() + "\t" + ops.get(i).getVals());
+
+        for (int i = 0; i < bigRes.size(); i++)
+            System.out.println(bigRes.get(i).getNom() + "\t" + bigRes.get(i).getVals());
     }
 }
