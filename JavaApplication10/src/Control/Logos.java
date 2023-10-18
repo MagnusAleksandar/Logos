@@ -15,11 +15,11 @@ public class Logos {
     private static ArrayList<String> vls = new ArrayList();
     private static ArrayList<Character> ch = new ArrayList<>(uniqueChars);
     private static ArrayList<Variable> vr = new ArrayList();
-    private static String frb = "+*()[]";
 
     // private static Variable vo = new Variable("", ' '); 'γ'
-    public static boolean containsAny(String str, String characters) {
-        for (char c : characters.toCharArray()) {
+    public static boolean containsAny(String str) {
+        String frb = "+*()[]";
+        for (char c : frb.toCharArray()) {
             if (str.contains(String.valueOf(c))) {
                 return true;
             }
@@ -32,18 +32,25 @@ public class Logos {
         ArrayList<String> tb = new ArrayList();
         String uh = "", uhb = "", f;
         int cont = 1;
+        boolean bneg = false;
         for (int i = 0; i < op.length(); i++) {
-            if (op.charAt(i) != ']')
+            if (op.charAt(i) == '-')
+                bneg = true;
+            if (op.charAt(i) == '[' && bneg)
+                bneg = false;
+            if (op.charAt(i) != ']') {
                 uhb = uhb.concat(String.valueOf(op.charAt(i)));
-            else {
+            } else {
                 tb.add(uhb);
                 uhb = "";
             }
-            if (op.charAt(i) != ')')
-                uh = uh.concat(String.valueOf(op.charAt(i)));
-            else {
-                t.add(uh);
-                uh = "";
+            if (!bneg) {
+                if (op.charAt(i) != ')')
+                    uh = uh.concat(String.valueOf(op.charAt(i)));
+                else {
+                    t.add(uh);
+                    uh = "";
+                }
             }
         }
         if (uh != "")
@@ -68,12 +75,12 @@ public class Logos {
             opers.add(f);
         }
         for (int k = 0; k < opers.size(); k++) {
-            if (opers.get(k).length() < 1 || opers.get(k).length() == 1 && containsAny(opers.get(k), frb)) {
+            if (opers.get(k).length() < 1 || opers.get(k).length() == 1 && containsAny(opers.get(k))) {
                 opers.remove(opers.get(k));
                 k--;
             }
         }
-        System.out.println(opers);
+        // System.out.println(opers);
         for (int j = 0; j < tb.size(); j++) {
             cont = 0;
             f = "";
@@ -82,15 +89,15 @@ public class Logos {
                 if (uhb.charAt(c - 1) != '[')
                     f = f.concat(String.valueOf(uhb.charAt(c - 1)));
                 else {
-                    opers.add(f);
+                    bigPar.add(f);
                     f = "";
                 }
                 cont = c;
             }
             f = f.concat(String.valueOf(uhb.charAt(cont)));
-            bigPar.add(f);
+
         }
-        System.out.println(bigPar);
+        System.out.println(opers + "\n" + bigPar);
     }
 
     public static int powCalc(String op) {
@@ -98,13 +105,13 @@ public class Logos {
         char ch;
         for (int i = 0; i < op.length(); i++) {
             ch = op.charAt(i);
-            if (!containsAny(String.valueOf(ch), frb) && ch != '-')
+            if (!containsAny(String.valueOf(ch)) && ch != '-')
                 uniqueChars.add(ch);
 
         }
         // uniqueChars.toArray();
         s = uniqueChars.size();
-        System.out.println(s);
+
         return s;
     }
 
@@ -167,20 +174,25 @@ public class Logos {
         String va1, va2, test, res, nres;
         char ca, cb, cc, r;
         boolean neh = false;
+
         for (int i = 0; i < opers.size(); i++) {
             res = "";
             va1 = "";
             va2 = "";
             test = opers.get(i);
-            if (test.length() > 1) {
+            if (test.equals("-"))
+                neh = true;
+            else if (test.length() > 1) {
                 for (int j = 0; j < vr.size(); j++) {
                     ca = test.charAt(0);
                     cb = vr.get(j).getNom();
-                    cc = opers.get(i).charAt(2);
+                    cc = test.charAt(2);
                     if (ca == cb)
                         va1 = vr.get(j).getVals();
                     if (cc == cb)
                         va2 = vr.get(j).getVals();
+                    if (va1 != "" && va2 != "")
+                        break;
                 }
                 if (va1 != "" || va2 != "") {
                     for (int c = 0; c < va1.length(); c++) {
@@ -197,8 +209,7 @@ public class Logos {
             } else if (test.length() < 1) {
                 opers.remove(test);
                 i--;
-            } else if (test.equals("-"))
-                neh = true;
+            }
         }
         // System.out.println(opers.size());
     }
@@ -221,7 +232,7 @@ public class Logos {
     public static void assignVar() {
         String a = "";
         char c = ' ';
-        int cont = 0;
+        // int cont = 0;
         ArrayList<Character> caux = new ArrayList<>(uniqueChars);
         ch = caux;
         // System.out.println(ch);
@@ -258,7 +269,7 @@ public class Logos {
         valAddr(op);
         assignVar();
         parenth();
-        System.out.println(vr.get(0).getVals().length());
+
         for (int i = 0; i < vr.size(); i++) {
             System.out.println(vr.get(i).getNom() + "\t" + vr.get(i).getVals());
         }
