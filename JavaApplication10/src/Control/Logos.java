@@ -9,14 +9,14 @@ import java.util.TreeSet;
 public class Logos {
     private static Set<Character> uniqueChars = new TreeSet<>();
 
-    private static ArrayList<String> v = new ArrayList();
-    private static ArrayList<String> opers = new ArrayList();
-    private static ArrayList<String> bigPar = new ArrayList();
-    private static ArrayList<String> vls = new ArrayList();
+    private static ArrayList<String> v = new ArrayList<>();
+    private static ArrayList<String> opers = new ArrayList<>();
+    private static ArrayList<String> bigPar = new ArrayList<>();
+    private static ArrayList<String> vls = new ArrayList<>();
     private static ArrayList<Character> ch = new ArrayList<>(uniqueChars);
-    private static ArrayList<Variable> vr = new ArrayList();
-    private static ArrayList<Operacion> ops = new ArrayList();
-    private static ArrayList<String> os = new ArrayList();
+    private static ArrayList<Variable> vr = new ArrayList<>();
+    private static ArrayList<Operacion> ops = new ArrayList<>();
+    private static ArrayList<String> os = new ArrayList<>();
     private static ArrayList<Operacion> bigRes = new ArrayList<>();
     private static ArrayList<Operacion> theEnd = new ArrayList<>();
 
@@ -31,8 +31,8 @@ public class Logos {
     }
 
     public static void arrayMaker(String op) {
-        ArrayList<String> t = new ArrayList();
-        ArrayList<String> tb = new ArrayList();
+        ArrayList<String> t = new ArrayList<>();
+        ArrayList<String> tb = new ArrayList<>();
         String uh = "", uhb = "", f;
         int cont = 1;
         boolean bneg = false;
@@ -82,7 +82,7 @@ public class Logos {
         }
         for (int k = 0; k < opers.size(); k++) {
             uh = opers.get(k);
-            if (uh.length() <= 2 && containsAny(uh) || uh.equals("")) {
+            if (uh.length() <= 2 && containsAny(uh) || uh.equals("") || uh.charAt(0) == '*' || uh.charAt(0) == '+') {
                 opers.remove(uh);
                 k--;
             }
@@ -159,24 +159,24 @@ public class Logos {
         boolean cont = false;
         for (int i = 0; i < opers.size(); i++) {
             if (!opers.get(i).equals("-")) {
-                if (cont) {
-                    nom = opers.get(i);
-                    val = vls.get(i - 1);
-                } else {
-                    nom = opers.get(i);
-                    val = vls.get(i);
-                }
-                if (nom != "" && val != "") {
-                    Operacion o = new Operacion();
-                    o.setNom(nom);
-                    o.setVals(val);
-                    ops.add(o);
+                if (opers.get(i).length() > 1) {
+                    if (cont) {
+                        nom = opers.get(i);
+                        val = vls.get(i);
+                    } else {
+                        nom = opers.get(i);
+                        val = vls.get(i);
+                    }
+                    if (nom != "" && val != "") {
+                        Operacion o = new Operacion();
+                        o.setNom(nom);
+                        o.setVals(val);
+                        ops.add(o);
+                    }
                 }
             } else
                 cont = true;
         }
-        char ch = vr.get(vr.size() - 1).getNom();
-
     }
 
     public static char plusTimes(char o, char n1, char n2) {
@@ -204,8 +204,8 @@ public class Logos {
     public static void bigParenth() {
         String va1, va2, cb = "", ca = "", cc = "", test, res, nres;
         char r = ' ';
-        boolean neh = false;
-        int fin = 0, osint = 0, s;
+        boolean neh = false, notnot = false;
+        int fin = 0, s;
         opAddr();
         for (int i = 0; i < bigPar.size(); i++) {
             res = "";
@@ -218,6 +218,9 @@ public class Logos {
 
             } else if (test.length() > 1) {
                 for (int j = 0; j < ops.size(); j++) {
+                    ca = "";
+                    cc = "";
+                    cb = "";
                     if (test.length() >= 10) {
                         if (test.charAt(0) != '-') {
                             ca = ca.concat(test.substring(1, 4));
@@ -245,26 +248,34 @@ public class Logos {
 
                         }
                     }
+                    if (cc.length() < 3 && uniqueChars.contains(cc.charAt(0))
+                            || ca.length() < 3 && uniqueChars.contains(ca.charAt(0)))
+                        notnot = true;
                     cb = ops.get(j).getNom();
-                    if (ca.equals(cb)) {
+                    if (ca.equals(cb))
                         va1 = ops.get(j).getVals();
-                    }
-                    if (cc.equals(cb)) {
+
+                    if (cc.equals(cb))
                         va2 = ops.get(j).getVals();
-                    }
-                    ca = "";
-                    cc = "";
-                    cb = "";
+
                     if (va1 != "" && va2 != "")
                         break;
+                }
+                if (notnot) {
+                    for (int z = 0; z < vr.size(); z++) {
+                        cb = String.valueOf(vr.get(z).getNom());
+                        if (ca.equals(cb))
+                            va1 = vr.get(z).getVals();
+
+                        if (cc.equals(cb))
+                            va2 = vr.get(z).getVals();
+                    }
                 }
                 if (va1 != "" || va2 != "") {
                     if (test.charAt(0) != '-') {
                         for (int c = 0; c < va1.length(); c++) {
                             r = plusTimes(test.charAt(5), va1.charAt(c), va2.charAt(c));
                             res = res.concat(String.valueOf(r));
-                            cc = "";
-
                         }
                     } else {
                         for (int c = 0; c < va1.length(); c++) {
@@ -285,8 +296,6 @@ public class Logos {
                 bigPar.remove(test);
                 i--;
             }
-            osint++;
-
         }
     }
 
@@ -341,12 +350,12 @@ public class Logos {
         boolean cont = false;
         for (int a = 0; a < bigPar.size(); a++) {
             t = bigPar.get(a);
-            if (!bigPar.get(a).equals("-")) {
+            if (!t.equals("-")) {
                 if (cont) {
-                    nom = bigPar.get(a);
+                    nom = t;
                     val = os.get(a - 1);
                 } else if (!cont) {
-                    nom = bigPar.get(a);
+                    nom = t;
                     val = os.get(a);
                 }
                 if (nom != "" && val != "") {
@@ -361,7 +370,7 @@ public class Logos {
     }
 
     public static void finalOp(String op) {
-        ArrayList<String> tp = new ArrayList();
+        ArrayList<String> tp = new ArrayList<>();
         String rfin = "", n1 = "", n2 = "", n3 = "";
         char r;
         int pos = 0;
@@ -398,10 +407,8 @@ public class Logos {
     public static void assignVar() {
         String a;
         char c;
-        // int cont = 0;
         ArrayList<Character> caux = new ArrayList<>(uniqueChars);
         ch = caux;
-        // System.out.println(ch);
 
         for (int i = 0; i < v.size(); i++) {
             a = v.get(i);
@@ -432,12 +439,12 @@ public class Logos {
     public static void showr() {
         String noms = "", vls = "";
         boolean neg = false;
-        int s = vr.size() + opers.size() + bigRes.size();
 
         for (int i = 0; i < vr.size(); i++)
             noms = noms.concat(String.valueOf(vr.get(i).getNom()) + "\t");
         for (int i = 0; i < ops.size(); i++)
-            noms = noms.concat(ops.get(i).getNom() + "\t");
+            if (ops.get(i).getNom().length() > 1)
+                noms = noms.concat(ops.get(i).getNom() + "\t");
         for (int i = 0; i < bigRes.size(); i++) {
             if (bigPar.get(i).equals("-"))
                 neg = true;
@@ -451,7 +458,7 @@ public class Logos {
         noms = noms.concat("  ");
         noms = noms.concat(theEnd.get(0).getNom());
         System.out.println(noms);
-        for (int j = 0; j < theEnd.get(0).getVals().length(); j++) {
+        for (int j = 0; j < vr.get(0).getVals().length(); j++) {
             for (int k = 0; k < vr.size(); k++)
                 vls = vls.concat(String.valueOf(vr.get(k).getVals().charAt(j)) + "\t");
             for (int k = 0; k < ops.size(); k++)
