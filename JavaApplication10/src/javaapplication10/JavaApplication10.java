@@ -8,7 +8,7 @@ public class JavaApplication10 {
     public static void main(String[] args) {
         String op = "[-(a*b)+(c*d)]+[(e*f)+(ÿ)]";
         l.gather(op);
-        // l.finalOp();
+        l.showr();
     }
 
 }
