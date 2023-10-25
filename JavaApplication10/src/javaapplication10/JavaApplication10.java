@@ -14,3 +14,4 @@ public class JavaApplication10 {
 
 }
 // -[(a*b)+(c*d)]+[(e*f)+(ÿ)]
+// -[(a*j)+(-(b*i)]+[-[(c*h)+(d*g)]+(-(e+f)

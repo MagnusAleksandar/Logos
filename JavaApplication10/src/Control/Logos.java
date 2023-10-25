@@ -1,6 +1,7 @@
 package Control;
 
 import java.util.ArrayList;
+import java.util.Scanner;
 //import java.util.Collections;
 //import java.util.HashSet;
 import java.util.Set;
@@ -39,31 +40,36 @@ public class Logos {
         char chec;
         for (int i = 0; i < op.length(); i++) {
             chec = op.charAt(i);
-            if (chec == '-')
+            if (chec == '-') {
                 bneg = true;
+                // sneg = true;
+            }
             if (chec == '[' && bneg) {
                 tb.add(uhb);
                 bneg = false;
+                // sneg=false;
                 uhb = "";
             } else {
-                if (chec != ']') {
-                    if (chec != '-') {
+                if (chec != '-') {
+                    if (chec != ']') {
                         uhb = uhb.concat(String.valueOf(chec));
-                        if (chec != ')') {
+                        if (chec != ')')
                             uh = uh.concat(String.valueOf(chec));
-                        } else {
+                        else {
                             t.add(uh);
                             uh = "";
                         }
-                    } else
-                        tb.add(String.valueOf(chec));
-                } else {
-                    tb.add(uhb);
-                    uhb = "";
-                }
+                    } else {
+                        tb.add(uhb);
+                        uhb = "";
+                    }
+                } else
+                    uhb = uhb.concat(String.valueOf(chec));
+                // sneg = false;
 
             }
         }
+
         if (uh != "")
             t.add(uh);
         if (uhb != "")
@@ -73,16 +79,22 @@ public class Logos {
             f = "";
             uh = t.get(j);
             for (int c = 1; c < uh.length(); c++) {
-                if (uh.charAt(c - 1) != '(' && uh.charAt(c - 1) != '[')
-                    f = f.concat(String.valueOf(uh.charAt(c - 1)));
+                chec = uh.charAt(c - 1);
+                if (chec != '(' && chec != '[')
+                    f = f.concat(String.valueOf(chec));
                 else if (!f.isEmpty()) {
                     opers.add(f);
                     f = "";
+                }
+                if (uh.charAt(c) == '(' && chec == '(') {
+                    f = f.concat(String.valueOf('-'));
+                    // sneg = false;
                 }
                 cont = c;
             }
             f = f.concat(String.valueOf(uh.charAt(cont)));
             opers.add(f);
+
         }
         for (int k = 0; k < opers.size(); k++) {
             uh = opers.get(k);
@@ -93,6 +105,7 @@ public class Logos {
             if (uh.contains("-"))
                 opers.set(k, "-");
         }
+
         for (int j = 0; j < tb.size(); j++) {
             cont = 0;
             f = "";
@@ -119,8 +132,13 @@ public class Logos {
             if (uh.length() < 5 && containsAny(uh)) {
                 bigPar.remove(uh);
                 k--;
+            } else if (uh.startsWith("*") || uh.startsWith("+")) {
+                uh = uh.substring(1);
+                bigPar.set(k, uh);
+                k--;
             }
         }
+        System.out.println("Big par: " + bigPar + " Opers: " + opers);
     }
 
     public static int powCalc(String op) {
@@ -172,28 +190,29 @@ public class Logos {
     }
 
     public static void opAddr() {
+        ArrayList<String> tempr = new ArrayList<>();
         String val = "", nom = "", t;
         boolean cont = false, dash = false;
-        for (int i = 0; i < opers.size(); i++) {
-            t = opers.get(i);
-            if (!t.equals("-")) {
-                if (t.length() >= 1 || t.equals("ÿ")) {
-                    if (cont) {
-                        if (dash) {
-                            nom = "-" + t;
-                            dash = false;
-                        } else
-                            nom = t;
-                        val = vls.get(i - 1);
-                    } else {
-                        nom = t;
-                        val = vls.get(i);
-                    }
-                }
-            } else {
-                cont = true;
-                dash = true;
-            }
+        for (int b = 0; b < bigPar.size(); b++) {
+            t = opers.get(b);
+            if (!t.equals("-"))
+                tempr.add(t);
+        }
+        /*
+         * for (int a = 0; a < tempr.size(); a++) {
+         * nom = tempr.get(a);
+         * val = os.get(a);
+         * if (nom != "" && val != "") {
+         * Operacion bigP = new Operacion();
+         * bigP.setNom(nom);
+         * bigP.setVals(val);
+         * bigRes.add(bigP);
+         * }
+         * }
+         */
+        for (int i = 0; i < tempr.size(); i++) {
+            nom = tempr.get(i);
+            val = vls.get(i);
             if (nom != "" && val != "") {
                 Operacion o = new Operacion();
                 o.setNom(nom);
@@ -229,7 +248,7 @@ public class Logos {
 
     public static void bigParenth() {
         String va1, va2, cb = "", ca = "", cc = "", test, res, nres = "";
-        char r = ' ';
+        char r = ' ', n;
         boolean neh = false, notnot = false;
         int fin = 0, s, ind;
         opAddr();
@@ -242,13 +261,13 @@ public class Logos {
             s = test.length();
             if (test.equals("-"))
                 neh = true;
-            else {
+            else if (test.length() > 7) {
                 for (int j = 0; j < ops.size(); j++) {
                     ca = "";
                     cc = "";
                     cb = "";
 
-                    if (test.length() >= 10) {
+                    if (test.length() == 11) {
                         if (test.charAt(0) != '-') {
                             ca = ca.concat(test.substring(1, 4));
                             cc = cc.concat(test.substring(7, 10));
@@ -266,13 +285,17 @@ public class Logos {
                                 break;
                             }
                         }
-                        for (int k = fin + 3; k < test.length(); k++) {
+                        if (test.length() == 9) {
+                            fin += 3;
+                        } else if (test.length() == 13) {
+                            fin += 5;
+                        }
+                        for (int k = fin; k < test.length(); k++) {
                             r = test.charAt(k);
                             if (r != ')')
                                 cc = cc.concat(String.valueOf(test.charAt(k)));
                             else
                                 break;
-
                         }
                     }
                     // if (!cc.isEmpty())
@@ -318,6 +341,7 @@ public class Logos {
                     res = res.concat(String.valueOf(r));
                 }
             }
+
             if (res.length() > 1) {
                 if (neh) {
                     res = negado(res);
@@ -326,6 +350,7 @@ public class Logos {
                 os.add(res);
             }
         }
+
     }
 
     public static void parenth() {
@@ -377,11 +402,11 @@ public class Logos {
     public static void bigParAddr() {
         ArrayList<String> tempr = new ArrayList<>();
         String nom = "", val = "", t;
-        boolean cont = false;
-        int post;
+        // boolean cont = false;
+        // int post;
         for (int b = 0; b < bigPar.size(); b++) {
             t = bigPar.get(b);
-            if (!t.equals("-"))
+            if (!t.equals("-") && t.length() > 8)
                 tempr.add(t);
         }
         for (int a = 0; a < tempr.size(); a++) {
@@ -487,7 +512,6 @@ public class Logos {
                 }
             }
         }
-        noms = noms.concat(theEnd.get(0).getNom());
         System.out.println(noms);
         for (int j = 0; j < vr.get(0).getVals().length(); j++) {
             for (int k = 0; k < vr.size(); k++)
@@ -500,6 +524,13 @@ public class Logos {
             System.out.println(vls);
             vls = "";
         }
-
+        Scanner sn = new Scanner(System.in);
+        System.out.println("Oprima una tecla diferente de enter para mostrar el resultado final:");
+        tst = sn.nextLine();
+        if (!tst.isEmpty()) {
+            System.out.println(theEnd.get(0).getNom());
+            for (int w = 0; w < theEnd.get(0).getVals().length(); w++)
+                System.out.println(theEnd.get(0).getVals().charAt(w));
+        }
     }
 }
