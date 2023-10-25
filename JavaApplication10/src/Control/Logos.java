@@ -41,20 +41,27 @@ public class Logos {
             chec = op.charAt(i);
             if (chec == '-')
                 bneg = true;
-            if (chec == '(' && bneg)
-                bneg = false;
-
-            if (chec != ']') {
-                uhb = uhb.concat(String.valueOf(chec));
-                if (chec != ')') {
-                    uh = uh.concat(String.valueOf(chec));
-                } else {
-                    t.add(uh);
-                    uh = "";
-                }
-            } else {
+            if (chec == '[' && bneg) {
                 tb.add(uhb);
+                bneg = false;
                 uhb = "";
+            } else {
+                if (chec != ']') {
+                    if (chec != '-') {
+                        uhb = uhb.concat(String.valueOf(chec));
+                        if (chec != ')') {
+                            uh = uh.concat(String.valueOf(chec));
+                        } else {
+                            t.add(uh);
+                            uh = "";
+                        }
+                    } else
+                        tb.add(String.valueOf(chec));
+                } else {
+                    tb.add(uhb);
+                    uhb = "";
+                }
+
             }
         }
         if (uh != "")
@@ -66,9 +73,9 @@ public class Logos {
             f = "";
             uh = t.get(j);
             for (int c = 1; c < uh.length(); c++) {
-                if (uh.charAt(c - 1) != '(' && uh.charAt(c - 1) != ']')
+                if (uh.charAt(c - 1) != '(' && uh.charAt(c - 1) != '[')
                     f = f.concat(String.valueOf(uh.charAt(c - 1)));
-                else {
+                else if (!f.isEmpty()) {
                     opers.add(f);
                     f = "";
                 }
@@ -76,11 +83,10 @@ public class Logos {
             }
             f = f.concat(String.valueOf(uh.charAt(cont)));
             opers.add(f);
-
         }
         for (int k = 0; k < opers.size(); k++) {
             uh = opers.get(k);
-            if (uh.length() < 1 && containsAny(uh) || uh.equals("") || uh.charAt(0) == '*' || uh.charAt(0) == '+') {
+            if (uh.length() < 3 && containsAny(uh)) {
                 opers.remove(uh);
                 k--;
             }
@@ -94,19 +100,23 @@ public class Logos {
             for (int c = 1; c < uhb.length(); c++) {
                 if (uhb.charAt(c - 1) != '[')
                     f = f.concat(String.valueOf(uhb.charAt(c - 1)));
-                else {
-                    if (f.length() > 1 || !f.equals("*") && !f.equals("+"))
-                        bigPar.add(f);
+                else if (!f.isEmpty()) {
+                    bigPar.add(f);
                     f = "";
                 }
                 cont = c;
             }
-            f = f.concat(String.valueOf(uhb.charAt(cont)));
-            bigPar.add(f);
+            if (uhb.length() > 5) {
+                f = f.concat(String.valueOf(uhb.charAt(cont)));
+                bigPar.add(f);
+            } else if (!uhb.isEmpty())
+                bigPar.add(uhb);
+            // f = f.concat(String.valueOf(uhb.charAt(cont)));
         }
+
         for (int k = 0; k < bigPar.size(); k++) {
             uh = bigPar.get(k);
-            if (uh.length() < 1) {
+            if (uh.length() < 5 && containsAny(uh)) {
                 bigPar.remove(uh);
                 k--;
             }
@@ -219,71 +229,76 @@ public class Logos {
     }
 
     public static void bigParenth() {
-        String va1, va2, cb = "", ca = "", cc = "", test, res, nres;
+        String va1, va2, cb = "", ca = "", cc = "", test, res, nres = "";
         char r = ' ';
         boolean neh = false, notnot = false;
-        int fin = 0, s;
+        int fin = 0, s, ind;
         opAddr();
-        System.out.println(bigPar);
+        // System.out.println(bigPar + "gg");
         for (int i = 0; i < bigPar.size(); i++) {
             res = "";
             va1 = "";
             va2 = "";
             test = bigPar.get(i);
             s = test.length();
-            if (test.contains("-"))
+            if (test.equals("-"))
                 neh = true;
-            for (int j = 0; j < ops.size(); j++) {
-                ca = "";
-                cc = "";
-                cb = "";
-                if (test.length() >= 10) {
-                    if (test.charAt(0) != '-') {
-                        ca = ca.concat(test.substring(1, 4));
-                        cc = cc.concat(test.substring(7, 10));
+            else {
+                for (int j = 0; j < ops.size(); j++) {
+                    ca = "";
+                    cc = "";
+                    cb = "";
+
+                    if (test.length() >= 10) {
+                        if (test.charAt(0) != '-') {
+                            ca = ca.concat(test.substring(1, 4));
+                            cc = cc.concat(test.substring(7, 10));
+                        } else {
+                            ca = ca.concat(test.substring(2, 5));
+                            cc = cc.concat(test.substring(8, s - 1));
+                        }
                     } else {
-                        ca = ca.concat(test.substring(2, 5));
-                        cc = cc.concat(test.substring(8, s - 1));
-                    }
-                } else {
-                    for (int k = 1; k < test.length(); k++) {
-                        r = test.charAt(k);
-                        if (r != ')')
-                            ca = ca.concat(String.valueOf(test.charAt(k)));
-                        else {
-                            fin = k;
-                            break;
+                        for (int k = 1; k < test.length(); k++) {
+                            r = test.charAt(k);
+                            if (r != ')')
+                                ca = ca.concat(String.valueOf(test.charAt(k)));
+                            else {
+                                fin = k;
+                                break;
+                            }
+                        }
+                        for (int k = fin + 3; k < test.length(); k++) {
+                            r = test.charAt(k);
+                            if (r != ')')
+                                cc = cc.concat(String.valueOf(test.charAt(k)));
+                            else
+                                break;
+
                         }
                     }
-                    for (int k = fin + 3; k < test.length(); k++) {
-                        r = test.charAt(k);
-                        if (r != ')')
-                            cc = cc.concat(String.valueOf(test.charAt(k)));
-                        else
-                            break;
+                    // if (!cc.isEmpty())
+                    if (cc.length() < 3 && uniqueChars.contains(cc.charAt(0))
+                            || ca.length() < 3 && uniqueChars.contains(ca.charAt(0)))
+                        notnot = true;
+                    cb = ops.get(j).getNom();
+                    if (cb.charAt(0) != '-') {
+                        if (ca.equals(cb))
+                            va1 = ops.get(j).getVals();
 
+                        if (cc.equals(cb))
+                            va2 = ops.get(j).getVals();
+                    } else {
+                        if (ca.equals(cb.substring(1))) {
+                            va1 = ops.get(j).getVals();
+                        }
+                        if (cc.equals(cb.substring(1)))
+                            va2 = ops.get(j).getVals();
                     }
+                    if (va1 != "" && va2 != "")
+                        break;
                 }
-                if (cc.length() < 3 && uniqueChars.contains(cc.charAt(0))
-                        || ca.length() < 3 && uniqueChars.contains(ca.charAt(0)))
-                    notnot = true;
-                cb = ops.get(j).getNom();
-                if (cb.charAt(0) != '-') {
-                    if (ca.equals(cb))
-                        va1 = ops.get(j).getVals();
-
-                    if (cc.equals(cb))
-                        va2 = ops.get(j).getVals();
-                } else {
-                    if (ca.equals(cb.substring(1))) {
-                        va1 = ops.get(j).getVals();
-                    }
-                    if (cc.equals(cb.substring(1)))
-                        va2 = ops.get(j).getVals();
-                }
-                if (va1 != "" && va2 != "")
-                    break;
             }
+
             if (notnot) {
                 for (int z = 0; z < vr.size(); z++) {
                     cb = String.valueOf(vr.get(z).getNom());
@@ -295,20 +310,22 @@ public class Logos {
                 }
             }
             if (va1 != "" || va2 != "") {
-                if (test.charAt(0) != '-') {
-                    for (int c = 0; c < va1.length(); c++) {
-                        r = plusTimes(test.charAt(5), va1.charAt(c), va2.charAt(c));
-                        res = res.concat(String.valueOf(r));
-                    }
-                } else {
-                    for (int c = 0; c < va1.length(); c++) {
-                        r = plusTimes(test.charAt(6), va1.charAt(c), va2.charAt(c));
-                        res = res.concat(String.valueOf(r));
-                        neh = true;
-                    }
+                if (test.charAt(0) != '-')
+                    ind = 5;
+                else
+                    ind = 6;
+                for (int c = 0; c < va1.length(); c++) {
+                    r = plusTimes(test.charAt(ind), va1.charAt(c), va2.charAt(c));
+                    res = res.concat(String.valueOf(r));
                 }
             }
-            os.add(res);
+            if (res.length() > 1) {
+                if (neh) {
+                    res = negado(res);
+                    neh = false;
+                }
+                os.add(res);
+            }
         }
     }
 
@@ -359,26 +376,25 @@ public class Logos {
     }
 
     public static void bigParAddr() {
+        ArrayList<String> tempr = new ArrayList<>();
         String nom = "", val = "", t;
         boolean cont = false;
-        for (int a = 0; a < bigPar.size(); a++) {
-            t = bigPar.get(a);
-            if (!t.equals("-")) {
-                if (cont) {
-                    nom = t;
-                    val = os.get(a - 1);
-                } else if (!cont) {
-                    nom = t;
-                    val = os.get(a);
-                }
-                if (nom != "" && val != "") {
-                    Operacion bigP = new Operacion();
-                    bigP.setNom(nom);
-                    bigP.setVals(val);
-                    bigRes.add(bigP);
-                }
-            } else
-                cont = true;
+        int post;
+        for (int b = 0; b < bigPar.size(); b++) {
+            t = bigPar.get(b);
+            if (!t.equals("-"))
+                tempr.add(t);
+        }
+        System.out.println(tempr + " " + os);
+        for (int a = 0; a < tempr.size(); a++) {
+            nom = tempr.get(a);
+            val = os.get(a);
+            if (nom != "" && val != "") {
+                Operacion bigP = new Operacion();
+                bigP.setNom(nom);
+                bigP.setVals(val);
+                bigRes.add(bigP);
+            }
         }
     }
 
@@ -452,7 +468,7 @@ public class Logos {
     }
 
     public static void showr() {
-        String noms = "", vls = "";
+        String noms = "", vls = "", tst;
         boolean neg = false;
 
         for (int i = 0; i < vr.size(); i++)
@@ -460,17 +476,19 @@ public class Logos {
         for (int i = 0; i < ops.size(); i++)
             if (ops.get(i).getNom().length() > 1 || ops.get(i).getNom().equals("ÿ"))
                 noms = noms.concat(ops.get(i).getNom() + "\t");
-        for (int i = 0; i < bigRes.size(); i++) {
-            if (bigPar.get(i).equals("-"))
+        for (int i = 0; i < bigPar.size(); i++) {
+            tst = bigPar.get(i);
+            if (tst.equals("-"))
                 neg = true;
-            if (!neg)
-                noms = noms.concat(bigRes.get(i).getNom() + "\t");
             else {
-                noms = noms.concat("-" + bigRes.get(i).getNom() + "\t");
-                neg = false;
+                if (!neg)
+                    noms = noms.concat(bigPar.get(i) + "\t");
+                else {
+                    noms = noms.concat("-" + bigPar.get(i) + "\t");
+                    neg = false;
+                }
             }
         }
-        noms = noms.concat("  ");
         noms = noms.concat(theEnd.get(0).getNom());
         System.out.println(noms);
         for (int j = 0; j < vr.get(0).getVals().length(); j++) {
@@ -480,7 +498,7 @@ public class Logos {
                 vls = vls.concat(String.valueOf(ops.get(k).getVals().charAt(j) + "\t"));
             for (int k = 0; k < bigRes.size(); k++)
                 vls = vls.concat(String.valueOf(bigRes.get(k).getVals().charAt(j) + "\t\t"));
-            vls = vls.concat("\t" + String.valueOf(theEnd.get(0).getVals().charAt(j)));
+            vls = vls.concat(String.valueOf(theEnd.get(0).getVals().charAt(j)));
             System.out.println(vls);
             vls = "";
         }
