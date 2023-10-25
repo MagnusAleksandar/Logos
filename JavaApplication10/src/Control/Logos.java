@@ -121,7 +121,6 @@ public class Logos {
                 k--;
             }
         }
-        System.out.println(opers + "\n" + bigPar);
     }
 
     public static int powCalc(String op) {
@@ -385,7 +384,6 @@ public class Logos {
             if (!t.equals("-"))
                 tempr.add(t);
         }
-        System.out.println(tempr + " " + os);
         for (int a = 0; a < tempr.size(); a++) {
             nom = tempr.get(a);
             val = os.get(a);
