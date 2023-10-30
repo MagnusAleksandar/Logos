@@ -129,16 +129,12 @@ public class Logos {
 
         for (int k = 0; k < bigPar.size(); k++) {
             uh = bigPar.get(k);
-            if (uh.length() < 5 && containsAny(uh)) {
+            if (uh.length() < 5 && containsAny(uh) || uh.startsWith("*") || uh.startsWith("+")) {
                 bigPar.remove(uh);
-                k--;
-            } else if (uh.startsWith("*") || uh.startsWith("+")) {
-                uh = uh.substring(1);
-                bigPar.set(k, uh);
                 k--;
             }
         }
-        System.out.println("Big par: " + bigPar + " Opers: " + opers);
+        // System.out.println(bigPar);
     }
 
     public static int powCalc(String op) {
@@ -193,23 +189,11 @@ public class Logos {
         ArrayList<String> tempr = new ArrayList<>();
         String val = "", nom = "", t;
         boolean cont = false, dash = false;
-        for (int b = 0; b < bigPar.size(); b++) {
+        for (int b = 0; b < opers.size(); b++) {
             t = opers.get(b);
             if (!t.equals("-"))
                 tempr.add(t);
         }
-        /*
-         * for (int a = 0; a < tempr.size(); a++) {
-         * nom = tempr.get(a);
-         * val = os.get(a);
-         * if (nom != "" && val != "") {
-         * Operacion bigP = new Operacion();
-         * bigP.setNom(nom);
-         * bigP.setVals(val);
-         * bigRes.add(bigP);
-         * }
-         * }
-         */
         for (int i = 0; i < tempr.size(); i++) {
             nom = tempr.get(i);
             val = vls.get(i);
@@ -221,6 +205,7 @@ public class Logos {
             }
         }
         // for (int l = 0; l < ops.size(); l++)
+        // -[(a*j)+(-(b*i)]+[-[(c*h)+(d*g)]+(-(e+f)
         // System.out.println(ops.get(l).getNom());
     }
 
@@ -252,7 +237,7 @@ public class Logos {
         boolean neh = false, notnot = false;
         int fin = 0, s, ind;
         opAddr();
-        // System.out.println(bigPar + "gg");
+        System.out.println("Bik: " + bigPar + "\nSmol:" + opers + "\nOps: " + ops.get(3).getNom());
         for (int i = 0; i < bigPar.size(); i++) {
             res = "";
             va1 = "";
@@ -324,14 +309,25 @@ public class Logos {
             if (notnot) {
                 for (int z = 0; z < vr.size(); z++) {
                     cb = String.valueOf(vr.get(z).getNom());
-                    if (ca.equals(cb))
-                        va1 = vr.get(z).getVals();
-
-                    if (cc.equals(cb))
-                        va2 = vr.get(z).getVals();
+                    if (!ca.equals(String.valueOf('ÿ')) && !cc.equals(String.valueOf('ÿ'))) {
+                        if (ca.equals(cb))
+                            va1 = vr.get(z).getVals();
+                        else if (cc.equals(cb))
+                            va2 = vr.get(z).getVals();
+                    } else {
+                        if (cb.equals(String.valueOf('g'))) {
+                            if (ca.equals(String.valueOf('ÿ'))) {
+                                va1 = vr.get(z).getVals();
+                                va1 = negado(va1);
+                            } else if (cc.equals(String.valueOf('ÿ'))) {
+                                va2 = vr.get(z).getVals();
+                                va2 = negado(va2);
+                            }
+                        }
+                    }
                 }
             }
-            if (va1 != "" || va2 != "") {
+            if (va1 != "" && va2 != "") {
                 if (test.charAt(0) != '-')
                     ind = 5;
                 else
@@ -402,11 +398,10 @@ public class Logos {
     public static void bigParAddr() {
         ArrayList<String> tempr = new ArrayList<>();
         String nom = "", val = "", t;
-        // boolean cont = false;
-        // int post;
+        System.out.println("Vals: " + os.size());
         for (int b = 0; b < bigPar.size(); b++) {
             t = bigPar.get(b);
-            if (!t.equals("-") && t.length() > 8)
+            if (!t.equals("-") && t.length() > 6)
                 tempr.add(t);
         }
         for (int a = 0; a < tempr.size(); a++) {
@@ -524,9 +519,11 @@ public class Logos {
             System.out.println(vls);
             vls = "";
         }
-        Scanner sn = new Scanner(System.in);
-        System.out.println("Oprima una tecla diferente de enter para mostrar el resultado final:");
-        tst = sn.nextLine();
+        // System.out.println("Big par: " + bigPar + " Opers: " + opers);
+        try (Scanner sn = new Scanner(System.in)) {
+            System.out.println("Oprima una tecla diferente de enter para mostrar el resultado final:");
+            tst = sn.nextLine();
+        }
         if (!tst.isEmpty()) {
             System.out.println(theEnd.get(0).getNom());
             for (int w = 0; w < theEnd.get(0).getVals().length(); w++)
