@@ -20,6 +20,8 @@ public class Logos {
     private static ArrayList<String> os = new ArrayList<>();
     private static ArrayList<Operacion> bigRes = new ArrayList<>();
     private static ArrayList<Operacion> theEnd = new ArrayList<>();
+    private static ArrayList<String> tbik = new ArrayList<>();
+    private static ArrayList<String> tsmol = new ArrayList<>();
 
     public static boolean containsAny(String str) {
         String frb = "+*()[]";
@@ -29,6 +31,16 @@ public class Logos {
             }
         }
         return false;
+    }
+
+    public static void separOpers() {
+        for (int i = 0; i < bigPar.size(); i++)
+            if (bigPar.get(i).length() > 1)
+                tbik.add(bigPar.get(i));
+        for (int j = 0; j < opers.size(); j++)
+            if (opers.get(j).length() > 1)
+                tsmol.add(opers.get(j));
+        System.out.println("Bik" + tbik + "\nSmol" + tsmol);
     }
 
     public static void arrayMaker(String op) {
@@ -124,7 +136,6 @@ public class Logos {
                 bigPar.add(f);
             } else if (!uhb.isEmpty())
                 bigPar.add(uhb);
-            // f = f.concat(String.valueOf(uhb.charAt(cont)));
         }
 
         for (int k = 0; k < bigPar.size(); k++) {
@@ -134,7 +145,6 @@ public class Logos {
                 k--;
             }
         }
-        // System.out.println(bigPar);
     }
 
     public static int powCalc(String op) {
@@ -204,9 +214,6 @@ public class Logos {
                 ops.add(o);
             }
         }
-        // for (int l = 0; l < ops.size(); l++)
-        // -[(a*j)+(-(b*i)]+[-[(c*h)+(d*g)]+(-(e+f)
-        // System.out.println(ops.get(l).getNom());
     }
 
     public static char plusTimes(char o, char n1, char n2) {
@@ -237,7 +244,6 @@ public class Logos {
         boolean neh = false, notnot = false;
         int fin = 0, s, ind;
         opAddr();
-        System.out.println("Bik: " + bigPar + "\nSmol:" + opers + "\nOps: " + ops.get(3).getNom());
         for (int i = 0; i < bigPar.size(); i++) {
             res = "";
             va1 = "";
@@ -398,7 +404,6 @@ public class Logos {
     public static void bigParAddr() {
         ArrayList<String> tempr = new ArrayList<>();
         String nom = "", val = "", t;
-        System.out.println("Vals: " + os.size());
         for (int b = 0; b < bigPar.size(); b++) {
             t = bigPar.get(b);
             if (!t.equals("-") && t.length() > 6)
@@ -418,15 +423,26 @@ public class Logos {
 
     public static void finalOp(String op) {
         ArrayList<String> tp = new ArrayList<>();
-        String rfin = "", n1 = "", n2 = "", n3 = "";
+        ArrayList<String> te = new ArrayList<>();
+        String rfin = "", n1 = "", n2 = "", n3 = "", t1 = "", t2;
+        boolean e;
         char r;
-        int pos = bigRes.get(0).getNom().length(), s = bigRes.get(0).getNom().length();
+        int pos = bigRes.get(0).getNom().length();
 
-        if (op.charAt(0) == '-')
-            pos += 3;
-        if (op.charAt(0) == '[')
-            pos += 2;
-
+        if (!op.startsWith("(")) {
+            pos++;
+            if (op.charAt(1) != '(')
+                for (int k = 0; k < bigRes.get(0).getNom().length(); k++) {
+                    if (op.charAt(k) == '-')
+                        pos++;
+                    if (op.charAt(k) == '{')
+                        pos = +2;
+                    if (op.charAt(k) == '[')
+                        pos++;
+                    if (op.charAt(k) == '(')
+                        break;
+                }
+        }
         r = op.charAt(pos);
         for (int i = 1; i < bigRes.size(); i++) {
             n1 = bigRes.get(i - 1).getVals();
@@ -445,10 +461,42 @@ public class Logos {
             tp.add(rfin);
             rfin = "";
         }
-        if (tp.size() == 1) {
+        n1 = "";
+        n2 = "";
+        n3 = "";
+        rfin = "";
+        separOpers();
+        if (tsmol.size() == (tbik.size() * 2 + 1)) {
+            n1 = tp.get(0);
+            for (int g = 0; g < tsmol.size(); g++) {
+                t1 = tsmol.get(g);
+                for (int h = 0; h < tbik.size(); h++) {
+                    t2 = tbik.get(h);
+                    if (t2.contains(t1))
+                        n3 = n3.concat(t1);
+
+                }
+            }
+            if (!n3.isEmpty())
+                n3 = t1;
+            for (int z = 0; z < ops.size(); z++) {
+                System.out.println(ops.get(z).getNom());
+                if (ops.get(z).getNom() == t1) {
+                    n2 = ops.get(z).getVals();
+                    break;
+                }
+            }
+            for (int w = 1; w < n1.length(); w++) {
+                rfin = rfin.concat(String.valueOf(plusTimes('+', n1.charAt(w), n2.charAt(w))));
+            }
+            tp.add(rfin);
+            rfin = "";
+        }
+        te.add(tp.get(0));
+        if (te.size() == 1) {
             Operacion opf = new Operacion();
             opf.setNom(op);
-            opf.setVals(tp.get(0));
+            opf.setVals(te.get(0));
             theEnd.add(opf);
         }
     }
@@ -507,7 +555,6 @@ public class Logos {
                 }
             }
         }
-        System.out.println(noms);
         for (int j = 0; j < vr.get(0).getVals().length(); j++) {
             for (int k = 0; k < vr.size(); k++)
                 vls = vls.concat(String.valueOf(vr.get(k).getVals().charAt(j)) + "\t");
@@ -519,12 +566,11 @@ public class Logos {
             System.out.println(vls);
             vls = "";
         }
-        // System.out.println("Big par: " + bigPar + " Opers: " + opers);
         try (Scanner sn = new Scanner(System.in)) {
-            System.out.println("Oprima una tecla diferente de enter para mostrar el resultado final:");
+            System.out.println("Oprima enter para mostrar el resultado final:");
             tst = sn.nextLine();
         }
-        if (!tst.isEmpty()) {
+        if (tst.isEmpty()) {
             System.out.println(theEnd.get(0).getNom());
             for (int w = 0; w < theEnd.get(0).getVals().length(); w++)
                 System.out.println(theEnd.get(0).getVals().charAt(w));
