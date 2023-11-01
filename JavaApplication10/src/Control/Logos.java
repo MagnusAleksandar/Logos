@@ -22,6 +22,7 @@ public class Logos {
     private static ArrayList<Operacion> theEnd = new ArrayList<>();
     private static ArrayList<String> tbik = new ArrayList<>();
     private static ArrayList<String> tsmol = new ArrayList<>();
+    private static ArrayList<String> hugePar = new ArrayList<>();
 
     public static boolean containsAny(String str) {
         String frb = "+*()[]";
@@ -40,11 +41,51 @@ public class Logos {
         for (int j = 0; j < opers.size(); j++)
             if (opers.get(j).length() > 1)
                 tsmol.add(opers.get(j));
-        System.out.println("Bik" + tbik + "\nSmol" + tsmol);
     }
 
     public static void biggstArrMaker(String op) {
 
+        ArrayList<String> tm = new ArrayList<>();
+        String uhm = "", f, fm;
+        int cont = 1;// -{[(a*b)+(k*l)]*[(c*d)+(i*j)]}+[-[(-(e*f)+(-(g*h)]
+        boolean mneg = false;
+        char chec;
+        for (int i = 0; i < op.length(); i++) {
+            chec = op.charAt(i);
+            if (chec != '-') {
+                if (chec != '}') {
+                    uhm = uhm.concat(String.valueOf(chec));
+                } else {
+                    tm.add(uhm);
+                    uhm = "";
+                }
+            } else
+                tm.add(String.valueOf(chec));
+        }
+        for (int j = 0; j < tm.size(); j++) {
+            cont = 0;
+            f = "";
+            uhm = tm.get(j);
+            if (uhm.equals("-"))
+                mneg = true;
+            if (mneg && uhm.length() > 1) {
+                hugePar.add(tm.get(j - 1));
+                for (int c = 1; c < uhm.length(); c++) {
+                    chec = uhm.charAt(c - 1);
+                    if (chec != '{')
+                        f = f.concat(String.valueOf(chec));
+                    else if (!f.isEmpty()) {
+                        hugePar.add(f);
+                        f = "";
+                    }
+                    cont = c;
+                }
+                f = f.concat(String.valueOf(uhm.charAt(cont)));
+                hugePar.add(f);
+                mneg = false;
+            }
+        }
+        System.out.println(hugePar);
     }
 
     public static void arrayMaker(String op) {
@@ -54,100 +95,103 @@ public class Logos {
         int cont = 1;
         boolean bneg = false;
         char chec;
-        if (op.startsWith("-{") || op.startsWith("{"))
+        if (op.startsWith("-{") || op.startsWith("{")) {
             biggstArrMaker(op);
-        else {
-            for (int i = 0; i < op.length(); i++) {
-                chec = op.charAt(i);
-                if (chec == '-') {
-                    bneg = true;
-                }
-                if (chec == '[' && bneg) {
-                    tb.add(uhb);
-                    bneg = false;
-                    uhb = "";
-                } else {
-                    if (chec != '-') {
-                        if (chec != ']') {
-                            uhb = uhb.concat(String.valueOf(chec));
-                            if (chec != ')')
-                                uh = uh.concat(String.valueOf(chec));
-                            else {
-                                t.add(uh);
-                                uh = "";
-                            }
-                        } else {
-                            tb.add(uhb);
-                            uhb = "";
-                        }
-                    } else
-                        uhb = uhb.concat(String.valueOf(chec));
-
-                }
-            }
-
-            if (uh != "")
-                t.add(uh);
-            if (uhb != "")
+            StringBuilder sb = new StringBuilder(op);
+            sb.deleteCharAt(0);
+            if (op.startsWith("-"))
+                sb.deleteCharAt(0);
+            op = sb.deleteCharAt(sb.indexOf("}")).toString();
+            // System.out.println(op);
+        }
+        for (int i = 0; i < op.length(); i++) {
+            chec = op.charAt(i);
+            if (chec == '-')
+                bneg = true;
+            if (chec == '[' && bneg) {
                 tb.add(uhb);
-            for (int j = 0; j < t.size(); j++) {
-                cont = 0;
-                f = "";
-                uh = t.get(j);
-                for (int c = 1; c < uh.length(); c++) {
-                    chec = uh.charAt(c - 1);
-                    if (chec != '(' && chec != '[')
-                        f = f.concat(String.valueOf(chec));
-                    else if (!f.isEmpty()) {
-                        opers.add(f);
-                        f = "";
+                bneg = false;
+                uhb = "";
+            } else {
+                if (chec != '-') {
+                    if (chec != ']') {
+                        uhb = uhb.concat(String.valueOf(chec));
+                        if (chec != ')')
+                            uh = uh.concat(String.valueOf(chec));
+                        else {
+                            t.add(uh);
+                            uh = "";
+                        }
+                    } else {
+                        tb.add(uhb);
+                        uhb = "";
                     }
-                    if (uh.charAt(c) == '(' && chec == '(') {
-                        f = f.concat(String.valueOf('-'));
-                        // sneg = false;
-                    }
-                    cont = c;
-                }
-                f = f.concat(String.valueOf(uh.charAt(cont)));
-                opers.add(f);
+                } else
+                    uhb = uhb.concat(String.valueOf(chec));
 
             }
-            for (int k = 0; k < opers.size(); k++) {
-                uh = opers.get(k);
-                if (uh.length() < 3 && containsAny(uh)) {
-                    opers.remove(uh);
-                    k--;
-                }
-                if (uh.contains("-"))
-                    opers.set(k, "-");
-            }
+        }
 
-            for (int j = 0; j < tb.size(); j++) {
-                cont = 0;
-                f = "";
-                uhb = tb.get(j);
-                for (int c = 1; c < uhb.length(); c++) {
-                    if (uhb.charAt(c - 1) != '[')
-                        f = f.concat(String.valueOf(uhb.charAt(c - 1)));
-                    else if (!f.isEmpty()) {
-                        bigPar.add(f);
-                        f = "";
-                    }
-                    cont = c;
+        if (uh != "")
+            t.add(uh);
+        if (uhb != "")
+            tb.add(uhb);
+        for (int j = 0; j < t.size(); j++) {
+            cont = 0;
+            f = "";
+            uh = t.get(j);
+            for (int c = 1; c < uh.length(); c++) {
+                chec = uh.charAt(c - 1);
+                if (chec != '(' && chec != '[')
+                    f = f.concat(String.valueOf(chec));
+                else if (!f.isEmpty()) {
+                    opers.add(f);
+                    f = "";
                 }
-                if (uhb.length() > 5) {
-                    f = f.concat(String.valueOf(uhb.charAt(cont)));
+                if (uh.charAt(c) == '(' && chec == '(') {
+                    f = f.concat(String.valueOf('-'));
+
+                }
+                cont = c;
+            }
+            f = f.concat(String.valueOf(uh.charAt(cont)));
+            opers.add(f);
+        }
+        for (int k = 0; k < opers.size(); k++) {
+            uh = opers.get(k);
+            if (uh.length() < 3 && containsAny(uh)) {
+                opers.remove(uh);
+                k--;
+            }
+            if (uh.contains("-"))
+                opers.set(k, "-");
+        }
+
+        for (int j = 0; j < tb.size(); j++) {
+            cont = 0;
+            f = "";
+            uhb = tb.get(j);
+            for (int c = 1; c < uhb.length(); c++) {
+                if (uhb.charAt(c - 1) != '[')
+                    f = f.concat(String.valueOf(uhb.charAt(c - 1)));
+                else if (!f.isEmpty()) {
                     bigPar.add(f);
-                } else if (!uhb.isEmpty())
-                    bigPar.add(uhb);
-            }
-
-            for (int k = 0; k < bigPar.size(); k++) {
-                uh = bigPar.get(k);
-                if (uh.length() < 5 && containsAny(uh) || uh.startsWith("*") || uh.startsWith("+")) {
-                    bigPar.remove(uh);
-                    k--;
+                    f = "";
                 }
+                cont = c;
+            }
+            if (uhb.length() > 5) {
+                f = f.concat(String.valueOf(uhb.charAt(cont)));
+                bigPar.add(f);
+            } else if (!uhb.isEmpty())
+                bigPar.add(uhb);
+        }
+
+        for (int k = 0; k < bigPar.size(); k++) {
+            uh = bigPar.get(k);
+            if (uh.length() < 5 && containsAny(uh) || uh.startsWith("*") || uh.startsWith("+")) {
+                bigPar.remove(uh);
+                k--;
             }
         }
     }
@@ -247,7 +291,7 @@ public class Logos {
         String va1, va2, cb = "", ca = "", cc = "", test, res;
         char r = ' ';
         boolean neh = false, notnot = false;
-        int fin = 0, s, ind;
+        int fin = 0, s, ind = 0;
         opAddr();
         for (int i = 0; i < bigPar.size(); i++) {
             res = "";
@@ -271,11 +315,20 @@ public class Logos {
                             ca = ca.concat(test.substring(2, 5));
                             cc = cc.concat(test.substring(8, s - 1));
                         }
+                    } else if (test.length() == 15) {
+                        if (test.charAt(1) != '-')
+                            ca = ca.concat(test.substring(2, 5));
+                        else
+                            ca = ca.concat(test.substring(3, 6));
+                        if (test.charAt(9) != '-')
+                            cc = cc.concat(test.substring(10, s - 1));
+                        else
+                            cc = cc.concat(test.substring(11, s - 1));
                     } else {
                         for (int k = 1; k < test.length(); k++) {
                             r = test.charAt(k);
                             if (r != ')')
-                                ca = ca.concat(String.valueOf(test.charAt(k)));
+                                ca = ca.concat(String.valueOf(r));
                             else {
                                 fin = k;
                                 break;
@@ -294,7 +347,6 @@ public class Logos {
                                 break;
                         }
                     }
-                    // if (!cc.isEmpty())
                     if (cc.length() < 3 && uniqueChars.contains(cc.charAt(0))
                             || ca.length() < 3 && uniqueChars.contains(ca.charAt(0)))
                         notnot = true;
@@ -338,10 +390,14 @@ public class Logos {
                     }
                 }
             }
+
             if (va1 != "" && va2 != "") {
-                if (test.charAt(0) != '-')
-                    ind = 5;
-                else
+                if (test.charAt(0) != '-') {
+                    if (test.charAt(1) != '-')
+                        ind = 5;
+                    else
+                        ind = 7;
+                } else
                     ind = 6;
                 for (int c = 0; c < va1.length(); c++) {
                     r = plusTimes(test.charAt(ind), va1.charAt(c), va2.charAt(c));
@@ -430,21 +486,31 @@ public class Logos {
         ArrayList<String> tp = new ArrayList<>();
         ArrayList<String> te = new ArrayList<>();
         String rfin = "", n1 = "", n2 = "", n3 = "", t1 = "", t2;
-        char r;
-        int pos = bigRes.get(0).getNom().length();
+        char r;// -{[(a*b)+(k*l)]*[(c*d)+(i*j)]}+[-[(-(e*f)+(-(g*h)]
+        int pos = bigRes.get(0).getNom().length(), s = 0;
 
-        if (!op.startsWith("(")) {
-            pos++;
-            if (op.charAt(1) != '(')
-                for (int k = 0; k < bigRes.get(0).getNom().length(); k++) {
-                    if (op.charAt(k) == '-')
-                        pos++;
-                    if (op.charAt(k) == '[')
-                        pos++;
-                    if (op.charAt(k) == '(')
-                        break;
-                }
-        }
+        if (!hugePar.isEmpty())
+            for (int x = 0; x < hugePar.size(); x++) {
+                if (s < hugePar.get(x).length())
+                    s = hugePar.get(x).length();
+            }
+
+        if (!op.startsWith("-"))
+            if (!op.startsWith("(")) {
+                pos++;
+                if (op.charAt(1) != '(')
+                    for (int k = 0; k < bigRes.get(0).getNom().length(); k++) {
+                        if (op.charAt(k) == '-')
+                            pos++;
+                        if (op.charAt(k) == '{')
+                            pos = s + 2;
+                        if (op.charAt(k) == '[')
+                            pos++;
+                        if (op.charAt(k) == '(')
+                            break;
+                    }
+            }
+
         r = op.charAt(pos);
         for (int i = 1; i < bigRes.size(); i++) {
             n1 = bigRes.get(i - 1).getVals();

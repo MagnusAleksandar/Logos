@@ -9,7 +9,6 @@ public class JavaApplication10 {
         String op = Most.pedirString("Ingrese operacion:");
         Logos.gather(op);
         Logos.showr();
-
     }
 
 }
