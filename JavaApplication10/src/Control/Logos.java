@@ -43,6 +43,10 @@ public class Logos {
         System.out.println("Bik" + tbik + "\nSmol" + tsmol);
     }
 
+    public static void biggstArrMaker(String op) {
+
+    }
+
     public static void arrayMaker(String op) {
         ArrayList<String> t = new ArrayList<>();
         ArrayList<String> tb = new ArrayList<>();
@@ -50,99 +54,100 @@ public class Logos {
         int cont = 1;
         boolean bneg = false;
         char chec;
-        for (int i = 0; i < op.length(); i++) {
-            chec = op.charAt(i);
-            if (chec == '-') {
-                bneg = true;
-                // sneg = true;
-            }
-            if (chec == '[' && bneg) {
-                tb.add(uhb);
-                bneg = false;
-                // sneg=false;
-                uhb = "";
-            } else {
-                if (chec != '-') {
-                    if (chec != ']') {
-                        uhb = uhb.concat(String.valueOf(chec));
-                        if (chec != ')')
-                            uh = uh.concat(String.valueOf(chec));
-                        else {
-                            t.add(uh);
-                            uh = "";
+        if (op.startsWith("-{") || op.startsWith("{"))
+            biggstArrMaker(op);
+        else {
+            for (int i = 0; i < op.length(); i++) {
+                chec = op.charAt(i);
+                if (chec == '-') {
+                    bneg = true;
+                }
+                if (chec == '[' && bneg) {
+                    tb.add(uhb);
+                    bneg = false;
+                    uhb = "";
+                } else {
+                    if (chec != '-') {
+                        if (chec != ']') {
+                            uhb = uhb.concat(String.valueOf(chec));
+                            if (chec != ')')
+                                uh = uh.concat(String.valueOf(chec));
+                            else {
+                                t.add(uh);
+                                uh = "";
+                            }
+                        } else {
+                            tb.add(uhb);
+                            uhb = "";
                         }
-                    } else {
-                        tb.add(uhb);
-                        uhb = "";
+                    } else
+                        uhb = uhb.concat(String.valueOf(chec));
+
+                }
+            }
+
+            if (uh != "")
+                t.add(uh);
+            if (uhb != "")
+                tb.add(uhb);
+            for (int j = 0; j < t.size(); j++) {
+                cont = 0;
+                f = "";
+                uh = t.get(j);
+                for (int c = 1; c < uh.length(); c++) {
+                    chec = uh.charAt(c - 1);
+                    if (chec != '(' && chec != '[')
+                        f = f.concat(String.valueOf(chec));
+                    else if (!f.isEmpty()) {
+                        opers.add(f);
+                        f = "";
                     }
-                } else
-                    uhb = uhb.concat(String.valueOf(chec));
-                // sneg = false;
-
-            }
-        }
-
-        if (uh != "")
-            t.add(uh);
-        if (uhb != "")
-            tb.add(uhb);
-        for (int j = 0; j < t.size(); j++) {
-            cont = 0;
-            f = "";
-            uh = t.get(j);
-            for (int c = 1; c < uh.length(); c++) {
-                chec = uh.charAt(c - 1);
-                if (chec != '(' && chec != '[')
-                    f = f.concat(String.valueOf(chec));
-                else if (!f.isEmpty()) {
-                    opers.add(f);
-                    f = "";
+                    if (uh.charAt(c) == '(' && chec == '(') {
+                        f = f.concat(String.valueOf('-'));
+                        // sneg = false;
+                    }
+                    cont = c;
                 }
-                if (uh.charAt(c) == '(' && chec == '(') {
-                    f = f.concat(String.valueOf('-'));
-                    // sneg = false;
+                f = f.concat(String.valueOf(uh.charAt(cont)));
+                opers.add(f);
+
+            }
+            for (int k = 0; k < opers.size(); k++) {
+                uh = opers.get(k);
+                if (uh.length() < 3 && containsAny(uh)) {
+                    opers.remove(uh);
+                    k--;
                 }
-                cont = c;
+                if (uh.contains("-"))
+                    opers.set(k, "-");
             }
-            f = f.concat(String.valueOf(uh.charAt(cont)));
-            opers.add(f);
 
-        }
-        for (int k = 0; k < opers.size(); k++) {
-            uh = opers.get(k);
-            if (uh.length() < 3 && containsAny(uh)) {
-                opers.remove(uh);
-                k--;
-            }
-            if (uh.contains("-"))
-                opers.set(k, "-");
-        }
-
-        for (int j = 0; j < tb.size(); j++) {
-            cont = 0;
-            f = "";
-            uhb = tb.get(j);
-            for (int c = 1; c < uhb.length(); c++) {
-                if (uhb.charAt(c - 1) != '[')
-                    f = f.concat(String.valueOf(uhb.charAt(c - 1)));
-                else if (!f.isEmpty()) {
+            for (int j = 0; j < tb.size(); j++) {
+                cont = 0;
+                f = "";
+                uhb = tb.get(j);
+                for (int c = 1; c < uhb.length(); c++) {
+                    if (uhb.charAt(c - 1) != '[')
+                        f = f.concat(String.valueOf(uhb.charAt(c - 1)));
+                    else if (!f.isEmpty()) {
+                        bigPar.add(f);
+                        f = "";
+                    }
+                    cont = c;
+                }
+                if (uhb.length() > 5) {
+                    f = f.concat(String.valueOf(uhb.charAt(cont)));
                     bigPar.add(f);
-                    f = "";
-                }
-                cont = c;
+                } else if (!uhb.isEmpty())
+                    bigPar.add(uhb);
             }
-            if (uhb.length() > 5) {
-                f = f.concat(String.valueOf(uhb.charAt(cont)));
-                bigPar.add(f);
-            } else if (!uhb.isEmpty())
-                bigPar.add(uhb);
-        }
 
-        for (int k = 0; k < bigPar.size(); k++) {
-            uh = bigPar.get(k);
-            if (uh.length() < 5 && containsAny(uh) || uh.startsWith("*") || uh.startsWith("+")) {
-                bigPar.remove(uh);
-                k--;
+            for (int k = 0; k < bigPar.size(); k++) {
+                uh = bigPar.get(k);
+                if (uh.length() < 5 && containsAny(uh) || uh.startsWith("*") || uh.startsWith("+")) {
+                    bigPar.remove(uh);
+                    k--;
+                }
             }
         }
     }
@@ -198,7 +203,7 @@ public class Logos {
     public static void opAddr() {
         ArrayList<String> tempr = new ArrayList<>();
         String val = "", nom = "", t;
-        boolean cont = false, dash = false;
+        // boolean cont = false, dash = false;
         for (int b = 0; b < opers.size(); b++) {
             t = opers.get(b);
             if (!t.equals("-"))
@@ -239,8 +244,8 @@ public class Logos {
     }
 
     public static void bigParenth() {
-        String va1, va2, cb = "", ca = "", cc = "", test, res, nres = "";
-        char r = ' ', n;
+        String va1, va2, cb = "", ca = "", cc = "", test, res;
+        char r = ' ';
         boolean neh = false, notnot = false;
         int fin = 0, s, ind;
         opAddr();
@@ -425,7 +430,6 @@ public class Logos {
         ArrayList<String> tp = new ArrayList<>();
         ArrayList<String> te = new ArrayList<>();
         String rfin = "", n1 = "", n2 = "", n3 = "", t1 = "", t2;
-        boolean e;
         char r;
         int pos = bigRes.get(0).getNom().length();
 
@@ -435,8 +439,6 @@ public class Logos {
                 for (int k = 0; k < bigRes.get(0).getNom().length(); k++) {
                     if (op.charAt(k) == '-')
                         pos++;
-                    if (op.charAt(k) == '{')
-                        pos = +2;
                     if (op.charAt(k) == '[')
                         pos++;
                     if (op.charAt(k) == '(')
