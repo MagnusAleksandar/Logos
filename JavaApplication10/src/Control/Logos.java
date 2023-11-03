@@ -1,5 +1,8 @@
 package Control;
 
+import java.io.File;
+import java.io.FileWriter;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Scanner;
 //import java.util.Collections;
@@ -25,7 +28,7 @@ public class Logos {
     private static ArrayList<String> hugePar = new ArrayList<>();
 
     public static boolean containsAny(String str) {
-        String frb = "+*()[]";
+        String frb = "+*()[]{}";
         for (char c : frb.toCharArray()) {
             if (str.contains(String.valueOf(c))) {
                 return true;
@@ -85,7 +88,7 @@ public class Logos {
                 mneg = false;
             }
         }
-        System.out.println(hugePar);
+        // System.out.println(hugePar);
     }
 
     public static void arrayMaker(String op) {
@@ -486,7 +489,7 @@ public class Logos {
         ArrayList<String> tp = new ArrayList<>();
         ArrayList<String> te = new ArrayList<>();
         String rfin = "", n1 = "", n2 = "", n3 = "", t1 = "", t2;
-        char r;// -{[(a*b)+(k*l)]*[(c*d)+(i*j)]}+[-[(-(e*f)+(-(g*h)]
+        char r;
         int pos = bigRes.get(0).getNom().length(), s = 0;
 
         if (!hugePar.isEmpty())
@@ -495,71 +498,85 @@ public class Logos {
                     s = hugePar.get(x).length();
             }
 
-        if (!op.startsWith("-"))
-            if (!op.startsWith("(")) {
-                pos++;
-                if (op.charAt(1) != '(')
-                    for (int k = 0; k < bigRes.get(0).getNom().length(); k++) {
-                        if (op.charAt(k) == '-')
-                            pos++;
-                        if (op.charAt(k) == '{')
-                            pos = s + 2;
-                        if (op.charAt(k) == '[')
-                            pos++;
-                        if (op.charAt(k) == '(')
-                            break;
+        if (!op.startsWith("(")) {
+            pos++;
+            if (op.charAt(1) != '(')
+                for (int k = 0; k < bigRes.get(0).getNom().length(); k++) {
+                    if (op.charAt(k) == '-')
+                        pos++;
+                    if (op.charAt(k) == '{')
+                        pos = s + 2;
+                    if (op.charAt(k) == '[')
+                        pos++;
+                    if (op.charAt(k) == '(')
+                        break;
+                }
+        }
+
+        if (!op.startsWith("-{") && !op.startsWith("{")) {
+            r = op.charAt(pos);
+            for (int i = 1; i < bigRes.size(); i++) {
+                n1 = bigRes.get(i - 1).getVals();
+                if (n2 == "")
+                    n2 = bigRes.get(i).getVals();
+                if (n1 != n2) {
+                    for (int j = 0; j < n1.length(); j++)
+                        rfin = rfin.concat(String.valueOf(plusTimes(r, n1.charAt(j), n2.charAt(j))));
+                } else
+                    n3 = n1;
+                if (n3 != "") {
+                    for (int j = 0; j < n3.length(); j++)
+                        rfin = rfin.concat(String.valueOf(plusTimes(r, n3.charAt(j), n2.charAt(j))));
+                    n3 = "";
+                }
+                tp.add(rfin);
+                rfin = "";
+            }
+            n1 = "";
+            n2 = "";
+            n3 = "";
+            rfin = "";
+            separOpers();
+            if (tsmol.size() == (tbik.size() * 2 + 1)) {
+                n1 = tp.get(0);
+                for (int g = 0; g < tsmol.size(); g++) {
+                    t1 = tsmol.get(g);
+                    for (int h = 0; h < tbik.size(); h++) {
+                        t2 = tbik.get(h);
+                        if (t2.contains(t1))
+                            n3 = n3.concat(t1);
+
                     }
-            }
+                }
+                if (!n3.isEmpty())
+                    n3 = t1;
+                for (int z = 0; z < ops.size(); z++) {
+                    System.out.println(ops.get(z).getNom());
+                    if (ops.get(z).getNom() == t1) {
+                        n2 = ops.get(z).getVals();
+                        break;
+                    }
+                }
+                for (int w = 1; w < n1.length(); w++) {
+                    rfin = rfin.concat(String.valueOf(plusTimes('+', n1.charAt(w), n2.charAt(w))));
+                }
 
-        r = op.charAt(pos);
-        for (int i = 1; i < bigRes.size(); i++) {
-            n1 = bigRes.get(i - 1).getVals();
-            if (n2 == "")
-                n2 = bigRes.get(i).getVals();
-            if (n1 != n2) {
-                for (int j = 0; j < n1.length(); j++)
-                    rfin = rfin.concat(String.valueOf(plusTimes(r, n1.charAt(j), n2.charAt(j))));
-            } else
-                n3 = n1;
-            if (n3 != "") {
-                for (int j = 0; j < n3.length(); j++)
-                    rfin = rfin.concat(String.valueOf(plusTimes(r, n3.charAt(j), n2.charAt(j))));
-                n3 = "";
             }
-            tp.add(rfin);
-            rfin = "";
-        }
-        n1 = "";
-        n2 = "";
-        n3 = "";
-        rfin = "";
-        separOpers();
-        if (tsmol.size() == (tbik.size() * 2 + 1)) {
-            n1 = tp.get(0);
-            for (int g = 0; g < tsmol.size(); g++) {
-                t1 = tsmol.get(g);
-                for (int h = 0; h < tbik.size(); h++) {
-                    t2 = tbik.get(h);
-                    if (t2.contains(t1))
-                        n3 = n3.concat(t1);
-
+        } else {
+            ArrayList<String> tbik = new ArrayList<>();
+            tbik = biggestParAddr(op);
+            if (tbik.size() < 2) {
+                n1 = tbik.get(0);
+                for (int j = 0; j < hugePar.size(); j++)
+                    for (int i = 0; i < ops.size(); i++)
+                        if (!hugePar.get(j).contains(ops.get(i).getNom()))
+                            n2 = ops.get(i).getVals();
+                for (int l = 0; l < n1.length(); l++) {
+                    rfin = rfin.concat(String.valueOf(plusTimes(op.charAt(pos), n1.charAt(l), n2.charAt(l))));
                 }
             }
-            if (!n3.isEmpty())
-                n3 = t1;
-            for (int z = 0; z < ops.size(); z++) {
-                System.out.println(ops.get(z).getNom());
-                if (ops.get(z).getNom() == t1) {
-                    n2 = ops.get(z).getVals();
-                    break;
-                }
-            }
-            for (int w = 1; w < n1.length(); w++) {
-                rfin = rfin.concat(String.valueOf(plusTimes('+', n1.charAt(w), n2.charAt(w))));
-            }
-            tp.add(rfin);
-            rfin = "";
         }
+        tp.add(rfin);
         te.add(tp.get(0));
         if (te.size() == 1) {
             Operacion opf = new Operacion();
@@ -567,6 +584,44 @@ public class Logos {
             opf.setVals(te.get(0));
             theEnd.add(opf);
         }
+    }
+
+    public static ArrayList<String> biggestParAddr(String op) {
+        ArrayList<String> toparr = new ArrayList<>();
+        String v = "", t;
+        boolean neg = false;
+        int pos;
+        if (op.startsWith("-"))
+            pos = 3;
+        else
+            pos = 2;
+        boolean flag = false;
+        for (int i = 0; i < hugePar.size(); i++) {
+            t = hugePar.get(i);
+            if (!t.equals("-")) {
+                Operacion top = new Operacion();
+                for (int j = 0; j < bigRes.size(); j++) {
+                    if (t.contains(bigRes.get(j).getNom()))
+                        flag = true;
+                    else if (flag && t.contains(bigRes.get(j).getNom())) {
+                        for (int k = 0; k < bigRes.get(j).getVals().length(); k++)
+                            v = v.concat(String.valueOf(plusTimes(op.charAt(t.length() + pos),
+                                    bigRes.get(j).getVals().charAt(k), bigRes.get(j).getVals().charAt(k - 1))));
+                        flag = false;
+                    }
+                }
+                if (neg) {
+                    v = negado(v);
+                    neg = false;
+                }
+                toparr.add(v);
+                t = "";
+                v = "";
+
+            } else
+                neg = true;
+        }
+        return toparr;
     }
 
     public static void assignVar() {
@@ -603,45 +658,44 @@ public class Logos {
 
     public static void showr() {
         String noms = "", vls = "", tst;
-        boolean neg = false;
+        int cont = 0;
+        File file = new File("output.txt");
 
         for (int i = 0; i < vr.size(); i++)
             noms = noms.concat(String.valueOf(vr.get(i).getNom()) + "\t");
         for (int i = 0; i < ops.size(); i++)
             if (ops.get(i).getNom().length() > 1 || ops.get(i).getNom().equals("ÿ"))
-                noms = noms.concat(ops.get(i).getNom() + "\t");
+                noms = noms.concat("M" + (i + 1)) + "\t";
         for (int i = 0; i < bigPar.size(); i++) {
             tst = bigPar.get(i);
-            if (tst.equals("-"))
-                neg = true;
-            else {
-                if (!neg)
-                    noms = noms.concat(bigPar.get(i) + "\t");
-                else {
-                    noms = noms.concat("-" + bigPar.get(i) + "\t");
-                    neg = false;
-                }
+            if (!tst.equals("-")) {
+                cont++;
+                noms = noms.concat("S" + cont + "\t");
             }
         }
-        for (int j = 0; j < vr.get(0).getVals().length(); j++) {
-            for (int k = 0; k < vr.size(); k++)
-                vls = vls.concat(String.valueOf(vr.get(k).getVals().charAt(j)) + "\t");
-            for (int k = 0; k < ops.size(); k++)
-                vls = vls.concat(String.valueOf(ops.get(k).getVals().charAt(j) + "\t"));
-            for (int k = 0; k < bigRes.size(); k++)
-                vls = vls.concat(String.valueOf(bigRes.get(k).getVals().charAt(j) + "\t\t"));
-            vls = vls.concat(String.valueOf(theEnd.get(0).getVals().charAt(j)));
-            System.out.println(vls);
-            vls = "";
-        }
-        try (Scanner sn = new Scanner(System.in)) {
-            System.out.println("Oprima enter para mostrar el resultado final:");
-            tst = sn.nextLine();
-        }
-        if (tst.isEmpty()) {
-            System.out.println(theEnd.get(0).getNom());
-            for (int w = 0; w < theEnd.get(0).getVals().length(); w++)
-                System.out.println(theEnd.get(0).getVals().charAt(w));
+        noms = noms.concat("Total\n");
+        try {
+            FileWriter fileWriter = new FileWriter(file);
+            fileWriter.write(noms);
+            for (int j = 0; j < vr.get(0).getVals().length(); j++) {
+                for (int k = 0; k < vr.size(); k++)
+                    vls = vls.concat(String.valueOf(vr.get(k).getVals().charAt(j)) + "\t");
+                for (int k = 0; k < ops.size(); k++)
+                    vls = vls.concat(String.valueOf(ops.get(k).getVals().charAt(j) + "\t"));
+                for (int k = 0; k < bigRes.size(); k++)
+                    vls = vls.concat(String.valueOf(bigRes.get(k).getVals().charAt(j) + "\t"));
+                for (int k = 0; k < theEnd.size(); k++)
+                    fileWriter.write(theEnd.get(0).getVals().charAt(k));
+                vls = vls.concat(String.valueOf(theEnd.get(0).getVals().charAt(j)));
+                fileWriter.write(vls);
+                fileWriter.write("\n");
+                vls = "";
+            }
+
+            fileWriter.close();
+            System.out.println("Operación guardada en el archivo 'output.txt'");
+        } catch (IOException e) {
+            System.err.println("Error al escribir en el archivo: " + e.getMessage());
         }
     }
 }
