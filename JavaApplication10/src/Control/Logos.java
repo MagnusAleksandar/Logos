@@ -1,5 +1,8 @@
 package Control;
 
+import java.io.File;
+import java.io.FileWriter;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Scanner;
 //import java.util.Collections;
@@ -535,45 +538,44 @@ public class Logos {
 
     public static void showr() {
         String noms = "", vls = "", tst;
-        boolean neg = false;
+        int cont = 0;
+        File file = new File("output.txt");
 
         for (int i = 0; i < vr.size(); i++)
             noms = noms.concat(String.valueOf(vr.get(i).getNom()) + "\t");
         for (int i = 0; i < ops.size(); i++)
             if (ops.get(i).getNom().length() > 1 || ops.get(i).getNom().equals("ÿ"))
-                noms = noms.concat(ops.get(i).getNom() + "\t");
+                noms = noms.concat("M" + (i + 1)) + "\t";
         for (int i = 0; i < bigPar.size(); i++) {
             tst = bigPar.get(i);
-            if (tst.equals("-"))
-                neg = true;
-            else {
-                if (!neg)
-                    noms = noms.concat(bigPar.get(i) + "\t");
-                else {
-                    noms = noms.concat("-" + bigPar.get(i) + "\t");
-                    neg = false;
-                }
+            if (!tst.equals("-")) {
+                cont++;
+                noms = noms.concat("S" + cont + "\t");
             }
         }
-        for (int j = 0; j < vr.get(0).getVals().length(); j++) {
-            for (int k = 0; k < vr.size(); k++)
-                vls = vls.concat(String.valueOf(vr.get(k).getVals().charAt(j)) + "\t");
-            for (int k = 0; k < ops.size(); k++)
-                vls = vls.concat(String.valueOf(ops.get(k).getVals().charAt(j) + "\t"));
-            for (int k = 0; k < bigRes.size(); k++)
-                vls = vls.concat(String.valueOf(bigRes.get(k).getVals().charAt(j) + "\t\t"));
-            vls = vls.concat(String.valueOf(theEnd.get(0).getVals().charAt(j)));
-            System.out.println(vls);
-            vls = "";
-        }
-        try (Scanner sn = new Scanner(System.in)) {
-            System.out.println("Oprima enter para mostrar el resultado final:");
-            tst = sn.nextLine();
-        }
-        if (tst.isEmpty()) {
-            System.out.println(theEnd.get(0).getNom());
+        noms = noms.concat("Total\n");
+        try {
+            FileWriter fileWriter = new FileWriter(file);
+            fileWriter.write(noms);
+            for (int j = 0; j < vr.get(0).getVals().length(); j++) {
+                for (int k = 0; k < vr.size(); k++)
+                    vls = vls.concat(String.valueOf(vr.get(k).getVals().charAt(j)) + "\t");
+                for (int k = 0; k < ops.size(); k++)
+                    vls = vls.concat(String.valueOf(ops.get(k).getVals().charAt(j) + "\t"));
+                for (int k = 0; k < bigRes.size(); k++)
+                    vls = vls.concat(String.valueOf(bigRes.get(k).getVals().charAt(j) + "\t"));
+                vls = vls.concat(String.valueOf(theEnd.get(0).getVals().charAt(j)));
+                fileWriter.write(vls);
+                fileWriter.write("\n");
+                vls = "";
+            }
+            fileWriter.write(theEnd.get(0).getNom());
             for (int w = 0; w < theEnd.get(0).getVals().length(); w++)
-                System.out.println(theEnd.get(0).getVals().charAt(w));
+                fileWriter.write(theEnd.get(0).getVals().charAt(w));
+            fileWriter.close();
+            System.out.println("Operación guardada en el archivo 'output.txt'");
+        } catch (IOException e) {
+            System.err.println("Error al escribir en el archivo: " + e.getMessage());
         }
     }
 }
