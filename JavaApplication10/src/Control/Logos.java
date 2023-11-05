@@ -513,6 +513,7 @@ public class Logos {
         ArrayList<String> te = new ArrayList<>();
         Operacion hp = new Operacion();
         File file = new File("pos.txt");
+        File ef = new File("the_other_one.txt");
         String rfin = "", n1 = "", n2 = "", n3 = "", t1 = "", t2;
         char r, c1, c2;
         int pos = bigRes.get(0).getNom().length(), s = 0;
@@ -591,7 +592,7 @@ public class Logos {
             ArrayList<String> tbik = new ArrayList<>();
             char neg = op.charAt(s + 5);
             tbik = biggestParAddr(op);
-            String th, to;
+            String th = "", to;
             if (tbik.size() < 2) {
                 n1 = tbik.get(0);
                 hp.setVals(n1);
@@ -612,13 +613,15 @@ public class Logos {
             }
             try {
                 FileWriter fileWriter = new FileWriter(file);
-                fileWriter.write(hp.getNom() + "\n");
+                fileWriter.write(hp.getNom() + "\t" + bigRes.get(2).getNom() + "\n");
+                s = th.length() + 3;
+                char sym = op.charAt(s);
                 for (int w = 0; w < n1.length(); w++) {
                     c1 = n1.charAt(w);
                     c2 = n2.charAt(w);
-                    r = plusTimes('+', c1, c2);
+                    r = plusTimes(sym, c1, c2);
                     rfin = rfin.concat(String.valueOf(r));
-                    fileWriter.write(n1.charAt(w) + "\n");
+                    fileWriter.write(c1 + " " + sym + " " + c2 + " = " + r + "\n");
                 }
                 fileWriter.close();
             } catch (IOException e) {
@@ -640,7 +643,6 @@ public class Logos {
         ArrayList<String> toparr = new ArrayList<>();
         String v = "", t, tn, tv, n1 = "", n2 = "";
         boolean neg = false;
-        char idk;
         int pos;
 
         if (op.startsWith("-"))
@@ -662,11 +664,14 @@ public class Logos {
                             n2 = tv;
                     }
                     if (flag && t.contains(tn) && n1 != "" && n2 != "") {
-                        idk = op.charAt(tn.length() + pos);
+                        char idk = op.charAt(tn.length() + pos), c1, c2, pt;
                         if (!n1.equals(n2))
-                            for (int k = 0; k < tv.length(); k++)
-                                v = v.concat(String
-                                        .valueOf(plusTimes(idk, n1.charAt(k), n1.charAt(k))));
+                            for (int k = 0; k < n1.length(); k++) {
+                                c1 = n1.charAt(k);
+                                c2 = n2.charAt(k);
+                                pt = plusTimes(idk, c1, c2);
+                                v = v.concat(String.valueOf(pt));
+                            }
                         flag = false;
                     }
                 }
