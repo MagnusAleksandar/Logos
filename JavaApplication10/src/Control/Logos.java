@@ -281,6 +281,18 @@ public class Logos {
                 else
                     ent = '0';
                 break;
+            case '%':// xor
+                if (n1 == '0' && n2 == '1' || n1 == '1' && n2 == '0')
+                    ent = '1';
+                else
+                    ent = '0';
+                break;
+            case '!':// xnor
+                if (n1 == '0' && n2 == '1' || n1 == '1' && n2 == '0')
+                    ent = '0';
+                else
+                    ent = '1';
+                break;
             default:
                 System.out.println("Simbolo no valido");
                 break;
