@@ -4,9 +4,6 @@ import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Scanner;
-//import java.util.Collections;
-//import java.util.HashSet;
 import java.util.Set;
 import java.util.TreeSet;
 
@@ -23,6 +20,7 @@ public class Logos {
     private static ArrayList<String> os = new ArrayList<>();
     private static ArrayList<Operacion> bigRes = new ArrayList<>();
     private static ArrayList<Operacion> theEnd = new ArrayList<>();
+    private static ArrayList<Operacion> hugeRes = new ArrayList<>();
     private static ArrayList<String> tbik = new ArrayList<>();
     private static ArrayList<String> tsmol = new ArrayList<>();
     private static ArrayList<String> hugePar = new ArrayList<>();
@@ -49,7 +47,7 @@ public class Logos {
     public static void biggstArrMaker(String op) {
 
         ArrayList<String> tm = new ArrayList<>();
-        String uhm = "", f, fm;
+        String uhm = "", f;
         int cont = 1;// -{[(a*b)+(k*l)]*[(c*d)+(i*j)]}+[-[(-(e*f)+(-(g*h)]
         boolean mneg = false;
         char chec;
@@ -357,7 +355,6 @@ public class Logos {
                     if (cb.charAt(0) != '-') {
                         if (ca.equals(cb))
                             va1 = ops.get(j).getVals();
-
                         if (cc.equals(cb))
                             va2 = ops.get(j).getVals();
                     } else {
@@ -420,7 +417,7 @@ public class Logos {
     }
 
     public static void parenth() {
-        String va1, va2, test, res, nres;
+        String va1, va2, test, res;
         char ca, cb, cc, r;
         boolean neh = false;
 
@@ -450,11 +447,12 @@ public class Logos {
                     }
                 }
                 if (neh) {
-                    nres = negado(res);
-                    vls.add(nres);
+                    res = negado(res);
                     neh = false;
-                } else
-                    vls.add(res);
+
+                }
+                vls.add(res);
+
             } else if (test.length() < 1) {
                 opers.remove(test);
                 i--;
@@ -488,8 +486,10 @@ public class Logos {
     public static void finalOp(String op) {
         ArrayList<String> tp = new ArrayList<>();
         ArrayList<String> te = new ArrayList<>();
+        Operacion hp = new Operacion();
+        File file = new File("pos.txt");
         String rfin = "", n1 = "", n2 = "", n3 = "", t1 = "", t2;
-        char r;
+        char r, c1, c2;
         int pos = bigRes.get(0).getNom().length(), s = 0;
 
         if (!hugePar.isEmpty())
@@ -564,18 +564,41 @@ public class Logos {
             }
         } else {
             ArrayList<String> tbik = new ArrayList<>();
+            char neg = op.charAt(s + 5);
             tbik = biggestParAddr(op);
+            String th, to;
             if (tbik.size() < 2) {
                 n1 = tbik.get(0);
-                for (int j = 0; j < hugePar.size(); j++)
-                    for (int i = 0; i < ops.size(); i++)
-                        if (!hugePar.get(j).contains(ops.get(i).getNom()))
-                            n2 = ops.get(i).getVals();
-                for (int l = 0; l < n1.length(); l++) {
-                    rfin = rfin.concat(String.valueOf(plusTimes(op.charAt(pos), n1.charAt(l), n2.charAt(l))));
+                hp.setVals(n1);
+                for (int j = 0; j < hugePar.size(); j++) {
+                    th = hugePar.get(j);
+                    if (th.length() > 1)
+                        hp.setNom(th);
+                    for (int i = 0; i < bigRes.size(); i++) {
+                        to = bigRes.get(i).getNom();
+                        if (!th.contains(to)) {
+                            n2 = bigRes.get(i).getVals();
+                            if (neg == '-')
+                                n2 = negado(n2);
+                        }
+                    }
                 }
             }
+            try {
+                FileWriter fileWriter = new FileWriter(file);
+                for (int w = 1; w < n1.length(); w++) {
+                    c1 = n1.charAt(w);
+                    c2 = n2.charAt(w);
+                    r = plusTimes('+', c1, c2);
+                    rfin = rfin.concat(String.valueOf(r));
+                    fileWriter.write(c1 + " + " + c2 + " = " + r + "\n");
+                }
+                fileWriter.close();
+            } catch (IOException e) {
+                System.out.println("Nope :v" + e.getMessage());
+            }
         }
+        hugeRes.add(hp);
         tp.add(rfin);
         te.add(tp.get(0));
         if (te.size() == 1) {
@@ -588,25 +611,35 @@ public class Logos {
 
     public static ArrayList<String> biggestParAddr(String op) {
         ArrayList<String> toparr = new ArrayList<>();
-        String v = "", t;
+        String v = "", t, tn, tv, n1 = "", n2 = "";
         boolean neg = false;
+        char idk;
         int pos;
+
         if (op.startsWith("-"))
-            pos = 3;
+            pos = 4;
         else
-            pos = 2;
+            pos = 3;
         boolean flag = false;
         for (int i = 0; i < hugePar.size(); i++) {
             t = hugePar.get(i);
             if (!t.equals("-")) {
-                Operacion top = new Operacion();
                 for (int j = 0; j < bigRes.size(); j++) {
-                    if (t.contains(bigRes.get(j).getNom()))
+                    tn = bigRes.get(j).getNom();
+                    tv = bigRes.get(j).getVals();
+                    if (t.contains(tn)) {
                         flag = true;
-                    else if (flag && t.contains(bigRes.get(j).getNom())) {
-                        for (int k = 0; k < bigRes.get(j).getVals().length(); k++)
-                            v = v.concat(String.valueOf(plusTimes(op.charAt(t.length() + pos),
-                                    bigRes.get(j).getVals().charAt(k), bigRes.get(j).getVals().charAt(k - 1))));
+                        if (n1 == "")
+                            n1 = tv;
+                        else if (n2 == "")
+                            n2 = tv;
+                    }
+                    if (flag && t.contains(tn) && n1 != "" && n2 != "") {
+                        idk = op.charAt(tn.length() + pos);
+                        if (!n1.equals(n2))
+                            for (int k = 0; k < tv.length(); k++)
+                                v = v.concat(String
+                                        .valueOf(plusTimes(idk, n1.charAt(k), n1.charAt(k))));
                         flag = false;
                     }
                 }
@@ -660,6 +693,7 @@ public class Logos {
         String noms = "", vls = "", tst;
         int cont = 0;
         File file = new File("output.txt");
+        System.out.println(theEnd.get(0).getVals().length());
 
         for (int i = 0; i < vr.size(); i++)
             noms = noms.concat(String.valueOf(vr.get(i).getNom()) + "\t");
@@ -673,25 +707,26 @@ public class Logos {
                 noms = noms.concat("S" + cont + "\t");
             }
         }
+        for (int i = 0; i < hugeRes.size(); i++)
+            noms = noms.concat("MS" + (i + 1) + "\t");
         noms = noms.concat("Total\n");
         try {
             FileWriter fileWriter = new FileWriter(file);
             fileWriter.write(noms);
-            for (int j = 0; j < vr.get(0).getVals().length(); j++) {
+            for (int j = 0; j < theEnd.get(0).getVals().length(); j++) {
                 for (int k = 0; k < vr.size(); k++)
                     vls = vls.concat(String.valueOf(vr.get(k).getVals().charAt(j)) + "\t");
                 for (int k = 0; k < ops.size(); k++)
                     vls = vls.concat(String.valueOf(ops.get(k).getVals().charAt(j) + "\t"));
                 for (int k = 0; k < bigRes.size(); k++)
                     vls = vls.concat(String.valueOf(bigRes.get(k).getVals().charAt(j) + "\t"));
-                for (int k = 0; k < theEnd.size(); k++)
-                    fileWriter.write(theEnd.get(0).getVals().charAt(k));
+                for (int k = 0; k < hugeRes.size(); k++)
+                    vls = vls.concat(String.valueOf(hugeRes.get(k).getVals().charAt(j) + "\t"));
                 vls = vls.concat(String.valueOf(theEnd.get(0).getVals().charAt(j)));
                 fileWriter.write(vls);
                 fileWriter.write("\n");
                 vls = "";
             }
-
             fileWriter.close();
             System.out.println("Operación guardada en el archivo 'output.txt'");
         } catch (IOException e) {
