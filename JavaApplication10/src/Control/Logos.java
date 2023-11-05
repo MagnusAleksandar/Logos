@@ -26,7 +26,7 @@ public class Logos {
     private static ArrayList<String> hugePar = new ArrayList<>();
 
     public static boolean containsAny(String str) {
-        String frb = "+*()[]{}";
+        String frb = "+*()[]{}!%";
         for (char c : frb.toCharArray()) {
             if (str.contains(String.valueOf(c))) {
                 return true;
@@ -305,6 +305,8 @@ public class Logos {
         char r = ' ';
         boolean neh = false, notnot = false;
         int fin = 0, s, ind = 0;
+        File file = new File("new.txt");
+
         opAddr();
         for (int i = 0; i < bigPar.size(); i++) {
             res = "";
@@ -411,9 +413,18 @@ public class Logos {
                         ind = 7;
                 } else
                     ind = 6;
-                for (int c = 0; c < va1.length(); c++) {
-                    r = plusTimes(test.charAt(ind), va1.charAt(c), va2.charAt(c));
-                    res = res.concat(String.valueOf(r));
+                try {
+                    FileWriter fileWriter = new FileWriter(file);
+                    fileWriter.write(test + "\n");
+                    for (int c = 0; c < va1.length(); c++) {
+                        r = plusTimes(test.charAt(ind), va1.charAt(c), va2.charAt(c));
+                        res = res.concat(String.valueOf(r));
+                        fileWriter
+                                .write(va1.charAt(c) + " " + test.charAt(ind) + " " + va2.charAt(c) + " = " + r + "\n");
+                    }
+                    fileWriter.close();
+                } catch (Exception e) {
+                    System.out.println(e.getMessage());
                 }
             }
 
@@ -456,8 +467,10 @@ public class Logos {
                     for (int c = 0; c < va1.length(); c++) {
                         r = plusTimes(test.charAt(1), va1.charAt(c), va2.charAt(c));
                         res = res.concat(String.valueOf(r));
+
                     }
                 }
+
                 if (neh) {
                     res = negado(res);
                     neh = false;
@@ -584,26 +597,28 @@ public class Logos {
                 hp.setVals(n1);
                 for (int j = 0; j < hugePar.size(); j++) {
                     th = hugePar.get(j);
-                    if (th.length() > 1)
+                    if (th.length() > 1) {
                         hp.setNom(th);
-                    for (int i = 0; i < bigRes.size(); i++) {
-                        to = bigRes.get(i).getNom();
-                        if (!th.contains(to)) {
-                            n2 = bigRes.get(i).getVals();
-                            if (neg == '-')
-                                n2 = negado(n2);
+                        for (int i = 0; i < bigRes.size(); i++) {
+                            to = bigRes.get(i).getNom();
+                            if (!th.contains(to)) {
+                                n2 = bigRes.get(i).getVals();
+                                if (neg == '-')
+                                    n2 = negado(n2);
+                            }
                         }
                     }
                 }
             }
             try {
                 FileWriter fileWriter = new FileWriter(file);
-                for (int w = 1; w < n1.length(); w++) {
+                fileWriter.write(hp.getNom() + "\n");
+                for (int w = 0; w < n1.length(); w++) {
                     c1 = n1.charAt(w);
                     c2 = n2.charAt(w);
                     r = plusTimes('+', c1, c2);
                     rfin = rfin.concat(String.valueOf(r));
-                    fileWriter.write(c1 + " + " + c2 + " = " + r + "\n");
+                    fileWriter.write(n1.charAt(w) + "\n");
                 }
                 fileWriter.close();
             } catch (IOException e) {
@@ -705,23 +720,20 @@ public class Logos {
         String noms = "", vls = "", tst;
         int cont = 0;
         File file = new File("output.txt");
-        System.out.println(theEnd.get(0).getVals().length());
 
         for (int i = 0; i < vr.size(); i++)
             noms = noms.concat(String.valueOf(vr.get(i).getNom()) + "\t");
         for (int i = 0; i < ops.size(); i++)
             if (ops.get(i).getNom().length() > 1 || ops.get(i).getNom().equals("ÿ"))
                 noms = noms.concat("M" + (i + 1)) + "\t";
-        for (int i = 0; i < bigPar.size(); i++) {
-            tst = bigPar.get(i);
-            if (!tst.equals("-")) {
-                cont++;
-                noms = noms.concat("S" + cont + "\t");
-            }
+        for (int i = 0; i < bigRes.size(); i++) {
+            tst = bigRes.get(i).getNom();
+            noms = noms.concat("S" + cont + "\t");
         }
         for (int i = 0; i < hugeRes.size(); i++)
             noms = noms.concat("MS" + (i + 1) + "\t");
         noms = noms.concat("Total\n");
+
         try {
             FileWriter fileWriter = new FileWriter(file);
             fileWriter.write(noms);
